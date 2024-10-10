@@ -28,6 +28,10 @@ export interface ChainConfig {
 
 export const chainConfig: { [chainId: string]: ChainConfig } = config;
 
-export function getChainConfig(chainId: number): ChainConfig | undefined {
-  return chainConfig[chainId.toString()];
+export function getChainConfig(chainId: number): ChainConfig {
+  const config = chainConfig[chainId.toString()];
+  if (!config) {
+    throw new Error(`Chain configuration not found for chainId: ${chainId}`);
+  }
+  return config;
 }
