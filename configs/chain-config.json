@@ -1,30 +1,4 @@
 {
-  "0": {
-    "contracts": {
-      "atlas": {
-        "address": ""
-      },
-      "atlasVerification": {
-        "address": ""
-      },
-      "sorter": {
-        "address": ""
-      },
-      "simulator": {
-        "address": ""
-      },
-      "multicall3": {
-        "address": ""
-      }
-    },
-    "eip712Domain": {
-      "name": "AtlasVerification",
-      "version": "1.0",
-      "chainId": 1,
-      "verifyingContract": "0x8Be503bcdEd90ED42Eff31f56199399B2b0154CA"
-    }
-  },
-
   "11155111": {
     "contracts": {
       "atlas": {

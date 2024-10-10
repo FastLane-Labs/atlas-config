@@ -17,7 +17,6 @@ yarn-error.log*
 *.swo
 
 # Operating System Files
-.DS_Store
 Thumbs.db
 
 # Environment variables
