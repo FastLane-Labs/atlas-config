@@ -1,4 +1,10 @@
-import config from '../../configs/chain-config.json';
+let config;
+// workaround for import not working in tsconfig.json
+try {
+  config = require('chain-config.json');
+} catch (e) {
+  config = require('./chain-config.json');
+}
 
 export interface ChainConfig {
   contracts: {

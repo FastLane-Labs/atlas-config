@@ -1,4 +1,4 @@
-import { chainConfig, getChainConfig, ChainConfig } from '../src/index';
+import { chainConfig, getChainConfig, ChainConfig } from '../dist/index';
 
 describe('Chain Config', () => {
   it('should export chainConfig object', () => {
