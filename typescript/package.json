@@ -1,13 +1,17 @@
- {
-  "name": "chain-config",
+{
+  "name": "@fastlane-labs/atlas-contract-addresses",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc && cp ../configs/chain-config.json ./dist/",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "@types/node": "^22.7.5",
     "typescript": "^5.4.5"
   }
 }
