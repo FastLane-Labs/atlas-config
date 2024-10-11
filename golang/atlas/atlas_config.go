@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -53,7 +55,12 @@ var chainConfig map[string]ChainConfig
 
 func init() {
 	// Load the config file
-	configPath := "../configs/chain-config.json"
+	_, currentFile, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("Failed to get current file path")
+	}
+	packageDir := filepath.Dir(currentFile)
+	configPath := filepath.Join(packageDir, "..", "configs", "chain-config.json")
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		panic(fmt.Sprintf("Config file not found: %s", configPath))
 	}
