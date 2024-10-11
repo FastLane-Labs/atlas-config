@@ -1,7 +1,7 @@
 {
-  "name": "@fastlane-labs/test-config",
-  "version": "0.0.1",
-  "description": "A test configuration package for Fastlane Labs",
+  "name": "@fastlane-labs/atlas-config",
+  "version": "0.1.0",
+  "description": "A configuration package for Atlas Protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
