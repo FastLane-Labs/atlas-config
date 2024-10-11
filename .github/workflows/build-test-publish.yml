@@ -5,8 +5,8 @@ on:
     types: [published]
 
 jobs:
-  build-and-test:
-    name: Build & Test
+  typescript-build-and-test:
+    name: TypeScript - Build & Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -25,9 +25,9 @@ jobs:
     - name: Test
       run: pnpm test
 
-  release:
-    name: Release to NPM
-    needs: build-and-test
+  typescript-release:
+    name: TypeScript - Release to NPM
+    needs: typescript-build-and-test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -38,10 +38,18 @@ jobs:
         node-version: lts/*
         registry-url: https://registry.npmjs.org
         cache: pnpm
+    - name: Get package name
+      id: package-name
+      run: |
+        PACKAGE_NAME=$(node -p "require('./typescript/package.json').name")
+        echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
     - name: Install dependencies 📦️
       run: pnpm install --frozen-lockfile
     - name: Build 🔨
       run: pnpm build
-    - uses: simenandre/publish-with-pnpm@v2
-      with:
-        npm-auth-token: ${{ secrets.NPM_AUTH_TOKEN }}
+    - name: Publish to NPM
+      run: pnpm publish --no-git-checks
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    - name: Log published package
+      run: echo "Published ${{ steps.package-name.outputs.PACKAGE_NAME }} to NPM"
