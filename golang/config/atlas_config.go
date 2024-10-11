@@ -1,4 +1,4 @@
-package atlasconfig
+package config
 
 import (
 	"encoding/json"
@@ -60,7 +60,7 @@ func init() {
 		panic("Failed to get current file path")
 	}
 	packageDir := filepath.Dir(currentFile)
-	configPath := filepath.Join(packageDir, "..", "configs", "chain-config.json")
+	configPath := filepath.Join(packageDir, "chain-config.json")
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		panic(fmt.Sprintf("Config file not found: %s", configPath))
 	}

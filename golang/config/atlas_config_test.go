@@ -1,4 +1,4 @@
-package atlasconfig
+package config
 
 import (
 	"math/big"

@@ -2,7 +2,7 @@
 
 
 copy-config:
-	cp ../configs/chain-config.json ./configs/chain-config.json
+	cp ../configs/chain-config.json ./config/chain-config.json
 
 # Build the package
 build:
