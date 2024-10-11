@@ -1,5 +1,9 @@
 .PHONY: build test clean
 
+
+copy-config:
+	cp ../configs/chain-config.json ./configs/chain-config.json
+
 # Build the package
 build:
 	go build ./...
@@ -26,4 +30,4 @@ lint:
 check: lint test
 
 # Default target
-all: build test
+all: copy-config build test
