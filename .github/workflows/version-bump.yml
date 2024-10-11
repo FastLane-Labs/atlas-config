@@ -6,6 +6,10 @@ on:
       version:
         description: 'New version (major.minor.patch)'
         required: true
+        default: '0.0.2'
+
+env:
+  NEW_VERSION: ${{ github.event.inputs.version || '0.0.2' }}
 
 jobs:
   typescript-version-bump:
@@ -27,33 +31,33 @@ jobs:
 
     - name: Create branch
       run: |
-        git checkout -b bump-typescript-version-${{ github.event.inputs.version }}
+        git checkout -b bump-typescript-version-${{ env.NEW_VERSION }}
 
     - name: Update version
       run: |
         cd typescript
-        npm version ${{ github.event.inputs.version }} --no-git-tag-version
+        npm version ${{ env.NEW_VERSION }} --no-git-tag-version
         git add package.json
 
     - name: Commit changes
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
-        git commit -m "Bump TypeScript ${{ steps.package-name.outputs.PACKAGE_NAME }} version to ${{ github.event.inputs.version }}"
+        git commit -m "Bump TypeScript ${{ steps.package-name.outputs.PACKAGE_NAME }} version to ${{ env.NEW_VERSION }}"
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v5
       with:
-        title: "Bump TypeScript ${{ steps.package-name.outputs.PACKAGE_NAME }} version to ${{ github.event.inputs.version }}"
-        body: "This PR bumps the version of TypeScript package ${{ steps.package-name.outputs.PACKAGE_NAME }} to ${{ github.event.inputs.version }}"
-        branch: "bump-typescript-version-${{ github.event.inputs.version }}"
+        title: "Bump TypeScript ${{ steps.package-name.outputs.PACKAGE_NAME }} version to ${{ env.NEW_VERSION }}"
+        body: "This PR bumps the version of TypeScript package ${{ steps.package-name.outputs.PACKAGE_NAME }} to ${{ env.NEW_VERSION }}"
+        branch: "bump-typescript-version-${{ env.NEW_VERSION }}"
         base: "main"
 
     - name: Create Draft Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release create v${{ github.event.inputs.version }} \
+        gh release create v${{ env.NEW_VERSION }} \
           --draft \
-          --title "TypeScript ${{ steps.package-name.outputs.PACKAGE_NAME }} v${{ github.event.inputs.version }}" \
-          --notes "Release notes for TypeScript package ${{ steps.package-name.outputs.PACKAGE_NAME }} version ${{ github.event.inputs.version }}"
+          --title "TypeScript ${{ steps.package-name.outputs.PACKAGE_NAME }} v${{ env.NEW_VERSION }}" \
+          --notes "Release notes for TypeScript package ${{ steps.package-name.outputs.PACKAGE_NAME }} version ${{ env.NEW_VERSION }}"
