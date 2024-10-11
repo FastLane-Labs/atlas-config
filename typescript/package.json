@@ -1,19 +1,28 @@
 {
   "name": "@fastlane-labs/test-config",
   "version": "0.0.1",
-  "description": "",
+  "description": "A test configuration package for Fastlane Labs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc && cp ../configs/chain-config.json dist/",
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "npm run build"
   },
   "files": [
     "dist"
   ],
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["fastlane", "config", "test"],
+  "author": "Fastlane Labs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fastlane-labs/atlas-config.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fastlane-labs/atlas-config/issues"
+  },
+  "homepage": "https://github.com/fastlane-labs/atlas-config#readme",
   "devDependencies": {
     "@types/jest": "^29.5.13",
     "jest": "^29.5.0",

@@ -1,0 +1,52 @@
+name: Version Bump and Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version (major.minor.patch)'
+        required: true
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+
+    - name: Create branch
+      run: |
+        git checkout -b bump-version-${{ github.event.inputs.version }}
+
+    - name: Update version
+      run: |
+        cd typescript
+        npm version ${{ github.event.inputs.version }} --no-git-tag-version
+
+    - name: Commit changes
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add typescript/package.json
+        git commit -m "Bump version to ${{ github.event.inputs.version }}"
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        title: "Bump version to ${{ github.event.inputs.version }}"
+        body: "This PR bumps the version to ${{ github.event.inputs.version }}"
+        branch: "bump-version-${{ github.event.inputs.version }}"
+        base: "main"
+
+    - name: Create Draft Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release create v${{ github.event.inputs.version }} \
+          --draft \
+          --title "Release v${{ github.event.inputs.version }}" \
+          --notes "Release notes for version ${{ github.event.inputs.version }}"
