@@ -9,7 +9,7 @@ A cross-language configuration package that provides a single source of truth fo
 Install the package via npm:
 
 ```bash
-npm install chain-config
+npm install @fastlane-labs/atlas-config
 ```
 
 ### Go
@@ -17,16 +17,7 @@ npm install chain-config
 Get the package using `go get`:
 
 ```bash
-go get github.com/yourusername/chain-config/chainconfig
-```
-
-### Rust
-
-Add the dependency to your `Cargo.toml`:
-
-```toml
-[dependencies]
-chain-config = { git = "https://github.com/yourusername/chain-config" }
+go get github.com/fastlane-labs/atlas-config/golang/chainconfig
 ```
 
 ## Usage
@@ -36,10 +27,10 @@ chain-config = { git = "https://github.com/yourusername/chain-config" }
 Import the `getChainConfig` function from the package:
 
 ```typescript
-import { getChainConfig } from 'chain-config';
+import { getChainConfig } from '@fastlane-labs/atlas-config';
 
-const config = getChainConfig(1); // Ethereum Mainnet
-console.log(config.name); // Outputs: "Ethereum Mainnet"
+const config = getChainConfig(137); // Polygon Mainnet
+console.log(config.name); // Outputs: "Polygon Mainnet"
 ```
 
 ### Go
@@ -49,33 +40,17 @@ Import the package and use the `GetChainConfig` function:
 ```go
 import (
     "fmt"
-    "github.com/yourusername/chain-config/chainconfig"
+    "github.com/fastlane-labs/atlas-config/golang/chainconfig"
 )
 
 func main() {
-    config, err := chainconfig.GetChainConfig(1)
+    config, err := chainconfig.GetChainConfig(137)
     if err != nil {
         // Handle error
         fmt.Println("Error:", err)
         return
     }
-    fmt.Println(config.Name) // Outputs: "Ethereum Mainnet"
-}
-```
-
-### Rust
-
-Use the `get_chain_config` function from the crate:
-
-```rust
-use chain_config::get_chain_config;
-
-fn main() {
-    if let Some(config) = get_chain_config(1) {
-        println!("{}", config.name); // Outputs: "Ethereum Mainnet"
-    } else {
-        println!("Chain configuration not found.");
-    }
+    fmt.Println(config.Name) // Outputs: "Polygon Mainnet"
 }
 ```
 
@@ -85,14 +60,13 @@ The configuration data is stored in a JSON file and includes details like contra
 
 ## Supported Chains
 
-- **Ethereum Mainnet** (Chain ID: `1`)
-- **Ethereum Sepolia** (Chain ID: `11155111`)
 - **Polygon Mainnet** (Chain ID: `137`)
-- **Polygon Mumbai** (Chain ID: `80001`)
-- **Unit Tests** (Chain ID: `0`)
+
+- **Ethereum Sepolia** (Chain ID: `11155111`)
+- **Polygon Amoy** (Chain ID: `80002`)
+
 
 ## Development
-
 To contribute or make changes to the configurations:
 
 1. Update the configuration file located at `configs/chain-config.json`.

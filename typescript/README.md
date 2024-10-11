@@ -73,8 +73,8 @@ Currently, this package supports the following chains:
 - Arbitrum (Chain ID: 42161)
 
 **Testnets:**
-- Sepolia (Chain ID: 11155111)
-- Mumbai (Polygon Testnet) (Chain ID: 80002)
+- Ethereum Sepolia (Chain ID: 11155111)
+- Polygon Amoy (Chain ID: 80002)
 
 Each chain configuration includes contract addresses and EIP-712 domain information specific to that network. Use the appropriate chain ID when calling `getChainConfig()` to retrieve the configuration for your desired network.
 
