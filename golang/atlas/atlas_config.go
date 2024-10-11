@@ -55,7 +55,7 @@ func init() {
 	// Load the config file
 	configPath := "../configs/chain-config.json"
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		configPath = "./chain-config.json"
+		panic(fmt.Sprintf("Config file not found: %s", configPath))
 	}
 
 	byteValue, err := os.ReadFile(configPath)

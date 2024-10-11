@@ -1,4 +1,4 @@
-module github.com/fastlane-labs/atlas-config/golang
+module github.com/FastLane-Labs/atlas-config/golang
 
 go 1.22.5
 
