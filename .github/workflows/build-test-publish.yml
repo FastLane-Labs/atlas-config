@@ -18,38 +18,63 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - uses: pnpm/action-setup@v4
+      with:
+        version: 9.9.0
     - name: Install dependencies
+      working-directory: ./typescript
       run: pnpm install --frozen-lockfile
     - name: Build
+      working-directory: ./typescript
       run: pnpm build
     - name: Test
+      working-directory: ./typescript
       run: pnpm test
 
   typescript-release:
-    name: TypeScript - Release to NPM
+    name: TypeScript - Release to NPM and GitHub
     needs: typescript-build-and-test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - uses: pnpm/action-setup@v4
+      with:
+        version: 9.9.0
     - name: Use Node LTS ✨
       uses: actions/setup-node@v4
       with:
         node-version: lts/*
         registry-url: https://registry.npmjs.org
         cache: pnpm
-    - name: Get package name
-      id: package-name
+        cache-dependency-path: ./typescript/pnpm-lock.yaml
+    - name: Get package info
+      id: package-info
+      working-directory: ./typescript
       run: |
-        PACKAGE_NAME=$(node -p "require('./typescript/package.json').name")
+        PACKAGE_NAME=$(node -p "require('./package.json').name")
+        PACKAGE_VERSION=$(node -p "require('./package.json').version")
         echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
     - name: Install dependencies 📦️
+      working-directory: ./typescript
       run: pnpm install --frozen-lockfile
     - name: Build 🔨
+      working-directory: ./typescript
       run: pnpm build
     - name: Publish to NPM
+      working-directory: ./typescript
       run: pnpm publish --no-git-checks
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.package-info.outputs.PACKAGE_VERSION }}
+        release_name: Release ${{ steps.package-info.outputs.PACKAGE_NAME }} v${{ steps.package-info.outputs.PACKAGE_VERSION }}
+        body: |
+          Release of ${{ steps.package-info.outputs.PACKAGE_NAME }} version ${{ steps.package-info.outputs.PACKAGE_VERSION }}
+        draft: false
+        prerelease: false
     - name: Log published package
-      run: echo "Published ${{ steps.package-name.outputs.PACKAGE_NAME }} to NPM"
+      run: echo "Published ${{ steps.package-info.outputs.PACKAGE_NAME }} v${{ steps.package-info.outputs.PACKAGE_VERSION }} to NPM and created GitHub release"
