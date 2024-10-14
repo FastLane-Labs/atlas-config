@@ -1,35 +1,18 @@
-let config;
-// workaround for import not working in tsconfig.json
-try {
-  config = require('chain-config.json');
-} catch (e) {
-  config = require('./chain-config.json');
-}
+/// <reference types="node" />
 
-export interface ChainConfig {
-  contracts: {
-    atlas: {
-      address: string;
-    };
-    atlasVerification: {
-      address: string;
-    };
-    sorter: {
-      address: string;
-    };
-    simulator: {
-      address: string;
-    };
-    multicall3: {
-      address: string;
-    };
-  };
-  eip712Domain: {
-    name: string;
-    version: string;
-    chainId: number;
-    verifyingContract: string;
-  };
+import type { ChainConfig, PartialChainConfig } from './types';
+
+let config: { [chainId: string]: ChainConfig };
+
+try {
+  config = require('chain-config.json') as { [chainId: string]: ChainConfig }; 
+} catch (e) {
+  try {
+    config = (require('./chain-config.json') as { [chainId: string]: ChainConfig });
+  } catch (e) {
+    console.error('Error loading ./chain-config.json:', e);
+    config = {};
+  }
 }
 
 export const chainConfig: { [chainId: string]: ChainConfig } = config;
@@ -40,4 +23,68 @@ export function getChainConfig(chainId: number): ChainConfig {
     throw new Error(`Chain configuration not found for chainId: ${chainId}`);
   }
   return config;
+}
+
+// New function to return all supported chainIds
+export function getSupportedChainIds(): number[] {
+  return Object.keys(chainConfig).map(Number);
+}
+
+// New function to return all chain configs as a list
+export function getAllChainConfigs(): ChainConfig[] {
+  return Object.values(chainConfig);
+}
+
+// Updated function to merge provided chain configs with the original
+export function mergeChainConfigs(providedConfigs: { [chainId: string]: PartialChainConfig | ChainConfig }): { [chainId: string]: ChainConfig } {
+  const mergedConfig = { ...chainConfig };
+  
+  for (const [chainId, providedConfig] of Object.entries(providedConfigs)) {
+    if (mergedConfig[chainId]) {
+      // Existing chain: merge partial config
+      mergedConfig[chainId] = {
+        ...mergedConfig[chainId],
+        ...providedConfig,
+        contracts: {
+          ...mergedConfig[chainId].contracts,
+          ...(providedConfig.contracts as { [key: string]: { address: string } }),
+        },
+        eip712Domain: {
+          ...mergedConfig[chainId].eip712Domain,
+          ...providedConfig.eip712Domain,
+        },
+      };
+    } else {
+      // New chain: ensure full config is provided
+      if (isFullChainConfig(providedConfig)) {
+        mergedConfig[chainId] = providedConfig;
+      } else {
+        throw new Error(`Full chain configuration must be provided for new chainId: ${chainId}`);
+      }
+    }
+  }
+
+  return mergedConfig;
+}
+
+// Helper function to check if a provided config is a full ChainConfig
+function isFullChainConfig(config: PartialChainConfig | ChainConfig): config is ChainConfig {
+  return (
+    typeof config.contracts === 'object' &&
+    typeof config.contracts.atlas === 'object' &&
+    typeof config.contracts.atlas.address === 'string' &&
+    typeof config.contracts.atlasVerification === 'object' &&
+    typeof config.contracts.atlasVerification.address === 'string' &&
+    typeof config.contracts.sorter === 'object' &&
+    typeof config.contracts.sorter.address === 'string' &&
+    typeof config.contracts.simulator === 'object' &&
+    typeof config.contracts.simulator.address === 'string' &&
+    typeof config.contracts.multicall3 === 'object' &&
+    typeof config.contracts.multicall3.address === 'string' &&
+    typeof config.eip712Domain === 'object' &&
+    typeof config.eip712Domain.name === 'string' &&
+    typeof config.eip712Domain.version === 'string' &&
+    typeof config.eip712Domain.chainId === 'number' &&
+    typeof config.eip712Domain.verifyingContract === 'string'
+  );
 }
