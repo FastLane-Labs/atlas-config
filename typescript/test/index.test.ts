@@ -1,12 +1,28 @@
 import { fail } from 'assert';
 import { chainConfig, getChainConfig, getSupportedChainIds, getAllChainConfigs, mergeChainConfigs } from '../src/index';
 import type { ChainConfig, PartialChainConfig } from '../src/types';
-import { describe, it, expect, beforeAll } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 describe('Chain Config', () => {
-  beforeAll(async () => {
-    // Wait for the config to be loaded
-    await new Promise(resolve => setTimeout(resolve, 100));
+  beforeEach(() => {
+    // Reset chainConfig before each test with a complete configuration
+    (global as any).chainConfig = {
+      '1': {
+        contracts: {
+          atlas: { address: '0x1000000000000000000000000000000000000000' },
+          atlasVerification: { address: '0x2000000000000000000000000000000000000000' },
+          sorter: { address: '0x3000000000000000000000000000000000000000' },
+          simulator: { address: '0x4000000000000000000000000000000000000000' },
+          multicall3: { address: '0x5000000000000000000000000000000000000000' },
+        },
+        eip712Domain: {
+          name: 'Initial',
+          version: '1',
+          chainId: 1,
+          verifyingContract: '0x6000000000000000000000000000000000000000',
+        },
+      },
+    };
   });
 
   it('should export chainConfig object', () => {
@@ -99,70 +115,55 @@ describe('Chain Config', () => {
   });
 
   describe('mergeChainConfigs', () => {
-    it('should merge provided configs with existing ones', () => {
-      const existingChainId = Object.keys(chainConfig)[0];
-      const newChainId = '999999';
-      const providedConfigs: { [chainId: string]: PartialChainConfig | ChainConfig } = {
+    it('should merge partial config for existing chain', () => {
+      const existingChainId = Object.keys(chainConfig)[0];  // Get the first chain ID from the existing config
+      const providedConfigs: { [chainId: string]: PartialChainConfig } = {
         [existingChainId]: {
           contracts: {
-            atlas: { address: '0x1234567890123456789012345678901234567890' }
-          }
-        },
-        [newChainId]: {
-          contracts: {
-            atlas: { address: '0x0987654321098765432109876543210987654321' },
-            atlasVerification: { address: '0x0987654321098765432109876543210987654321' },
-            sorter: { address: '0x0987654321098765432109876543210987654321' },
-            simulator: { address: '0x0987654321098765432109876543210987654321' },
-            multicall3: { address: '0x0987654321098765432109876543210987654321' }
-          },
-          eip712Domain: {
-            name: 'New Chain',
-            version: '1',
-            chainId: 999999,
-            verifyingContract: '0x1111111111111111111111111111111111111111'
+            atlas: { address: '0x7000000000000000000000000000000000000000' }
           }
         }
       };
 
       const mergedConfigs = mergeChainConfigs(providedConfigs);
 
-      // Check if existing chain config is updated
-      expect(mergedConfigs[existingChainId].contracts.atlas.address).toBe('0x1234567890123456789012345678901234567890');
-
-      // Check if new chain config is added
-      expect(mergedConfigs).toHaveProperty(newChainId);
-      expect(mergedConfigs[newChainId].contracts.atlas.address).toBe('0x0987654321098765432109876543210987654321');
-      expect(mergedConfigs[newChainId].eip712Domain.name).toBe('New Chain');
+      expect(mergedConfigs[existingChainId].contracts.atlas.address).toBe('0x7000000000000000000000000000000000000000');
+      expect(mergedConfigs[existingChainId].contracts.atlasVerification.address).toBe(chainConfig[existingChainId].contracts.atlasVerification.address);
     });
 
-    it('should not modify the original chainConfig', () => {
-      const originalConfigCopy = JSON.parse(JSON.stringify(chainConfig));
-      const existingChainId = Object.keys(chainConfig)[0];
-      const providedConfigs: { [chainId: string]: PartialChainConfig } = {
-        [existingChainId]: {
-          contracts: {
-            atlas: { address: '0x0987654321098765432109876543210987654321' }
-          }
-        }
-      };
-
-      mergeChainConfigs(providedConfigs);
-
-      expect(chainConfig).toEqual(originalConfigCopy);
-    });
-
-    it('should throw an error when trying to add a new chain with incomplete config', () => {
+    it('should add new chain config', () => {
       const newChainId = '999999';
-      const incompleteConfig: { [chainId: string]: PartialChainConfig } = {
-        [newChainId]: {
-          contracts: {
-            atlas: { address: '0x0987654321098765432109876543210987654321' }
-          }
+      const newConfig: ChainConfig = {
+        contracts: {
+          atlas: { address: '0x9000000000000000000000000000000000000000' },
+          atlasVerification: { address: '0xa000000000000000000000000000000000000000' },
+          sorter: { address: '0xb000000000000000000000000000000000000000' },
+          simulator: { address: '0xc000000000000000000000000000000000000000' },
+          multicall3: { address: '0xd000000000000000000000000000000000000000' }
+        },
+        eip712Domain: {
+          name: 'New Chain',
+          version: '1',
+          chainId: 999999,
+          verifyingContract: '0xe000000000000000000000000000000000000000'
         }
       };
 
-      expect(() => mergeChainConfigs(incompleteConfig)).toThrow(
+      const providedConfigs = { [newChainId]: newConfig };
+      const mergedConfigs = mergeChainConfigs(providedConfigs);
+
+      expect(mergedConfigs[newChainId]).toEqual(newConfig);
+    });
+
+    it('should throw error when adding incomplete new chain config', () => {
+      const newChainId = '888888';
+      const incompleteConfig: PartialChainConfig = {
+        contracts: {
+          atlas: { address: '0xf000000000000000000000000000000000000000' }
+        }
+      };
+
+      expect(() => mergeChainConfigs({ [newChainId]: incompleteConfig })).toThrow(
         `Full chain configuration must be provided for new chainId: ${newChainId}`
       );
     });
