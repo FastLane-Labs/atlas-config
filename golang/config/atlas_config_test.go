@@ -99,67 +99,166 @@ func TestGetAllChainConfigs(t *testing.T) {
 }
 
 func TestMergeChainConfigs(t *testing.T) {
-	// Test merging with an existing chain
-	existingChainId := "11155111"
-	newAtlasAddress := "0x1234567890123456789012345678901234567890"
-	providedConfigs := map[string]ChainConfig{
-		existingChainId: {
+	// Setup initial config
+	chainConfig = map[string]ChainConfig{
+		"1": {
 			Contracts: Contracts{
-				Atlas: common.HexToAddress(newAtlasAddress),
+				Atlas:             common.HexToAddress("0x1000000000000000000000000000000000000000"),
+				AtlasVerification: common.HexToAddress("0x2000000000000000000000000000000000000000"),
+				Sorter:            common.HexToAddress("0x3000000000000000000000000000000000000000"),
+				Simulator:         common.HexToAddress("0x4000000000000000000000000000000000000000"),
+				Multicall3:        common.HexToAddress("0x5000000000000000000000000000000000000000"),
+			},
+			EIP712Domain: EIP712Domain{
+				Name:              "Initial",
+				Version:           "1",
+				ChainId:           1,
+				VerifyingContract: "0x6000000000000000000000000000000000000000",
 			},
 		},
 	}
 
-	err := MergeChainConfigs(providedConfigs)
-	assert.NoError(t, err)
+	t.Run("Merge partial config for existing chain", func(t *testing.T) {
+		err := MergeChainConfigs(map[string]ChainConfig{
+			"1": {
+				Contracts: Contracts{
+					AtlasVerification: common.HexToAddress("0x7000000000000000000000000000000000000000"),
+				},
+			},
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, common.HexToAddress("0x1000000000000000000000000000000000000000"), chainConfig["1"].Contracts.Atlas)
+		assert.Equal(t, common.HexToAddress("0x7000000000000000000000000000000000000000"), chainConfig["1"].Contracts.AtlasVerification)
+	})
 
-	updatedConfig, err := GetChainConfig(11155111)
-	assert.NoError(t, err)
-	assert.Equal(t, newAtlasAddress, updatedConfig.Contracts.Atlas.Hex())
+	t.Run("Prioritize new complete config for existing chain", func(t *testing.T) {
+		newCompleteConfig := ChainConfig{
+			Contracts: Contracts{
+				Atlas:             common.HexToAddress("0x8000000000000000000000000000000000000000"),
+				AtlasVerification: common.HexToAddress("0x9000000000000000000000000000000000000000"),
+				Sorter:            common.HexToAddress("0xa000000000000000000000000000000000000000"),
+				Simulator:         common.HexToAddress("0xb000000000000000000000000000000000000000"),
+				Multicall3:        common.HexToAddress("0xc000000000000000000000000000000000000000"),
+			},
+			EIP712Domain: EIP712Domain{
+				Name:              "New",
+				Version:           "2",
+				ChainId:           1,
+				VerifyingContract: "0xd000000000000000000000000000000000000000",
+			},
+		}
+		err := MergeChainConfigs(map[string]ChainConfig{"1": newCompleteConfig})
+		assert.NoError(t, err)
+		assert.Equal(t, newCompleteConfig, chainConfig["1"])
+	})
 
-	// Test adding a new chain
-	newChainId := "999999"
-	newChainConfig := ChainConfig{
-		Contracts: Contracts{
-			Atlas:             common.HexToAddress("0x1111111111111111111111111111111111111111"),
-			AtlasVerification: common.HexToAddress("0x2222222222222222222222222222222222222222"),
-			Sorter:            common.HexToAddress("0x3333333333333333333333333333333333333333"),
-			Simulator:         common.HexToAddress("0x4444444444444444444444444444444444444444"),
-			Multicall3:        common.HexToAddress("0x5555555555555555555555555555555555555555"),
-		},
-		EIP712Domain: EIP712Domain{
-			Name:              "NewChain",
-			Version:           "1.0",
-			ChainId:           999999,
-			VerifyingContract: "0x6666666666666666666666666666666666666666",
-		},
-	}
-	providedConfigs = map[string]ChainConfig{
-		newChainId: newChainConfig,
-	}
+	t.Run("Add new chain config", func(t *testing.T) {
+		newChainConfig := ChainConfig{
+			Contracts: Contracts{
+				Atlas:             common.HexToAddress("0xe000000000000000000000000000000000000000"),
+				AtlasVerification: common.HexToAddress("0xf000000000000000000000000000000000000000"),
+				Sorter:            common.HexToAddress("0x1000000000000000000000000000000000000001"),
+				Simulator:         common.HexToAddress("0x2000000000000000000000000000000000000001"),
+				Multicall3:        common.HexToAddress("0x3000000000000000000000000000000000000001"),
+			},
+			EIP712Domain: EIP712Domain{
+				Name:              "New Chain",
+				Version:           "1",
+				ChainId:           2,
+				VerifyingContract: "0x4000000000000000000000000000000000000001",
+			},
+		}
+		err := MergeChainConfigs(map[string]ChainConfig{"2": newChainConfig})
+		assert.NoError(t, err)
+		assert.Equal(t, newChainConfig, chainConfig["2"])
+	})
 
-	err = MergeChainConfigs(providedConfigs)
-	assert.NoError(t, err)
+	t.Run("Attempt to add incomplete new chain config", func(t *testing.T) {
+		err := MergeChainConfigs(map[string]ChainConfig{
+			"3": {
+				Contracts: Contracts{
+					Atlas: common.HexToAddress("0x5000000000000000000000000000000000000001"),
+				},
+			},
+		})
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "full chain configuration must be provided for new chainId: 3")
+	})
 
-	addedConfig, err := GetChainConfig(999999)
-	assert.NoError(t, err)
-	assert.Equal(t, newChainConfig.Contracts.Atlas, addedConfig.Contracts.Atlas)
-	assert.Equal(t, newChainConfig.EIP712Domain.Name, addedConfig.EIP712Domain.Name)
+	t.Run("Merge multiple chains at once", func(t *testing.T) {
+		existingChainId := "1"
+		newChainId := "4"
+		providedConfigs := map[string]ChainConfig{
+			existingChainId: {
+				Contracts: Contracts{
+					Atlas: common.HexToAddress("0x6000000000000000000000000000000000000001"),
+				},
+			},
+			newChainId: {
+				Contracts: Contracts{
+					Atlas:             common.HexToAddress("0x7000000000000000000000000000000000000001"),
+					AtlasVerification: common.HexToAddress("0x8000000000000000000000000000000000000001"),
+					Sorter:            common.HexToAddress("0x9000000000000000000000000000000000000001"),
+					Simulator:         common.HexToAddress("0xa000000000000000000000000000000000000001"),
+					Multicall3:        common.HexToAddress("0xb000000000000000000000000000000000000001"),
+				},
+				EIP712Domain: EIP712Domain{
+					Name:              "Another New Chain",
+					Version:           "1",
+					ChainId:           4,
+					VerifyingContract: "0xc000000000000000000000000000000000000001",
+				},
+			},
+		}
 
-	// Test adding an incomplete new chain config (should fail)
-	incompleteChainId := "888888"
-	incompleteConfig := ChainConfig{
-		Contracts: Contracts{
-			Atlas: common.HexToAddress("0x7777777777777777777777777777777777777777"),
-		},
-	}
-	providedConfigs = map[string]ChainConfig{
-		incompleteChainId: incompleteConfig,
-	}
+		err := MergeChainConfigs(providedConfigs)
+		assert.NoError(t, err)
+		assert.Equal(t, common.HexToAddress("0x6000000000000000000000000000000000000001"), chainConfig[existingChainId].Contracts.Atlas)
+		assert.Equal(t, common.HexToAddress("0x7000000000000000000000000000000000000001"), chainConfig[newChainId].Contracts.Atlas)
+	})
 
-	err = MergeChainConfigs(providedConfigs)
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "full chain configuration must be provided for new chainId: 888888")
+	t.Run("Merge empty config", func(t *testing.T) {
+		originalConfig := make(map[string]ChainConfig)
+		for k, v := range chainConfig {
+			originalConfig[k] = v
+		}
+		err := MergeChainConfigs(map[string]ChainConfig{})
+		assert.NoError(t, err)
+		assert.Equal(t, originalConfig, chainConfig)
+	})
+
+	t.Run("Merge config with no changes", func(t *testing.T) {
+		originalConfig := make(map[string]ChainConfig)
+		for k, v := range chainConfig {
+			originalConfig[k] = v
+		}
+		err := MergeChainConfigs(originalConfig)
+		assert.NoError(t, err)
+		assert.Equal(t, originalConfig, chainConfig)
+	})
+
+	t.Run("Merge partial config that updates multiple fields", func(t *testing.T) {
+		existingChainId := "1"
+		providedConfig := map[string]ChainConfig{
+			existingChainId: {
+				Contracts: Contracts{
+					Atlas:  common.HexToAddress("0xd000000000000000000000000000000000000001"),
+					Sorter: common.HexToAddress("0xe000000000000000000000000000000000000001"),
+				},
+				EIP712Domain: EIP712Domain{
+					Name:    "Updated Chain",
+					Version: "2.0",
+				},
+			},
+		}
+
+		err := MergeChainConfigs(providedConfig)
+		assert.NoError(t, err)
+		assert.Equal(t, common.HexToAddress("0xd000000000000000000000000000000000000001"), chainConfig[existingChainId].Contracts.Atlas)
+		assert.Equal(t, common.HexToAddress("0xe000000000000000000000000000000000000001"), chainConfig[existingChainId].Contracts.Sorter)
+		assert.Equal(t, "Updated Chain", chainConfig[existingChainId].EIP712Domain.Name)
+		assert.Equal(t, "2.0", chainConfig[existingChainId].EIP712Domain.Version)
+	})
 }
 
 func TestThreadSafety(t *testing.T) {
