@@ -139,10 +139,15 @@ func MergeChainConfigs(providedConfigs map[string]ChainConfig) error {
 	defer configMutex.Unlock()
 
 	for chainId, providedConfig := range providedConfigs {
-		if existingConfig, ok := chainConfig[chainId]; ok {
-			// Existing chain: merge config
-			mergedConfig := mergeConfigs(existingConfig, providedConfig)
-			chainConfig[chainId] = mergedConfig
+		if _, ok := chainConfig[chainId]; ok {
+			// Existing chain
+			if isFullChainConfig(providedConfig) {
+				// Prioritize new complete config
+				chainConfig[chainId] = providedConfig
+			} else {
+				// Merge partial config
+				chainConfig[chainId] = mergeConfigs(chainConfig[chainId], providedConfig)
+			}
 		} else {
 			// New chain: ensure full config is provided
 			if !isFullChainConfig(providedConfig) {

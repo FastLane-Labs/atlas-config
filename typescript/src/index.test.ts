@@ -91,4 +91,89 @@ describe('mergeChainConfigs', () => {
       });
     }).toThrow('Full chain configuration must be provided for new chainId: 3');
   });
+
+  it('should merge multiple chains at once', () => {
+    const existingChainId = Object.keys(chainConfig)[0];
+    const newChainId = '999999';
+    const providedConfigs = {
+      [existingChainId]: {
+        contracts: {
+          atlas: { address: '0x7000000000000000000000000000000000000000' }
+        }
+      },
+      [newChainId]: {
+        contracts: {
+          atlas: { address: '0x8000000000000000000000000000000000000000' },
+          atlasVerification: { address: '0x9000000000000000000000000000000000000000' },
+          sorter: { address: '0xa000000000000000000000000000000000000000' },
+          simulator: { address: '0xb000000000000000000000000000000000000000' },
+          multicall3: { address: '0xc000000000000000000000000000000000000000' }
+        },
+        eip712Domain: {
+          name: 'New Chain',
+          version: '1',
+          chainId: 999999,
+          verifyingContract: '0xd000000000000000000000000000000000000000'
+        }
+      }
+    };
+
+    const mergedConfigs = mergeChainConfigs(providedConfigs);
+
+    expect(mergedConfigs[existingChainId].contracts.atlas.address).toBe('0x7000000000000000000000000000000000000000');
+    expect(mergedConfigs[newChainId].contracts.atlas.address).toBe('0x8000000000000000000000000000000000000000');
+  });
+
+  it('should not change anything when merging an empty config', () => {
+    const originalConfig = { ...chainConfig };
+    const mergedConfigs = mergeChainConfigs({});
+
+    expect(mergedConfigs).toEqual(originalConfig);
+  });
+
+  it('should return the same config when merging a config with no changes', () => {
+    const originalConfig = { ...chainConfig };
+    const mergedConfigs = mergeChainConfigs(originalConfig);
+
+    expect(mergedConfigs).toEqual(originalConfig);
+  });
+
+  it('should merge a partial config that updates multiple fields', () => {
+    const existingChainId = Object.keys(chainConfig)[0];
+    const providedConfig = {
+      [existingChainId]: {
+        contracts: {
+          atlas: { address: '0x7000000000000000000000000000000000000000' },
+          sorter: { address: '0x8000000000000000000000000000000000000000' }
+        },
+        eip712Domain: {
+          name: 'Updated Chain',
+          version: '2.0'
+        }
+      }
+    };
+
+    const mergedConfigs = mergeChainConfigs(providedConfig);
+
+    expect(mergedConfigs[existingChainId].contracts.atlas.address).toBe('0x7000000000000000000000000000000000000000');
+    expect(mergedConfigs[existingChainId].contracts.sorter.address).toBe('0x8000000000000000000000000000000000000000');
+    expect(mergedConfigs[existingChainId].eip712Domain.name).toBe('Updated Chain');
+    expect(mergedConfigs[existingChainId].eip712Domain.version).toBe('2.0');
+  });
+
+  it('should not modify the original chainConfig when merging', () => {
+    const originalConfig = JSON.parse(JSON.stringify(chainConfig));
+    const existingChainId = Object.keys(chainConfig)[0];
+    const providedConfig = {
+      [existingChainId]: {
+        contracts: {
+          atlas: { address: '0x7000000000000000000000000000000000000000' }
+        }
+      }
+    };
+
+    mergeChainConfigs(providedConfig);
+
+    expect(chainConfig).toEqual(originalConfig);
+  });
 });
