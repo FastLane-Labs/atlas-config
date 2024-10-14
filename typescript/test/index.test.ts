@@ -1,6 +1,14 @@
-import { chainConfig, getChainConfig, ChainConfig } from '../dist/index';
+import { fail } from 'assert';
+import { chainConfig, getChainConfig, getSupportedChainIds, getAllChainConfigs, mergeChainConfigs } from '../src/index';
+import type { ChainConfig, PartialChainConfig } from '../src/types';
+import { describe, it, expect, beforeAll } from '@jest/globals';
 
 describe('Chain Config', () => {
+  beforeAll(async () => {
+    // Wait for the config to be loaded
+    await new Promise(resolve => setTimeout(resolve, 100));
+  });
+
   it('should export chainConfig object', () => {
     expect(chainConfig).toBeInstanceOf(Object);
     expect(Object.keys(chainConfig).length).toBeGreaterThan(0);
@@ -53,6 +61,109 @@ describe('Chain Config', () => {
           chainId: expect.any(Number),
           verifyingContract: expect.any(String)
         })
+      );
+    });
+  });
+
+  describe('getSupportedChainIds', () => {
+    it('should return an array of numbers', () => {
+      const chainIds = getSupportedChainIds();
+      expect(Array.isArray(chainIds)).toBe(true);
+      expect(chainIds.length).toBeGreaterThan(0);
+      chainIds.forEach(id => expect(typeof id).toBe('number'));
+    });
+
+    it('should return all chain IDs from the chainConfig', () => {
+      const chainIds = getSupportedChainIds();
+      const configChainIds = Object.keys(chainConfig).map(Number);
+      expect(chainIds).toEqual(expect.arrayContaining(configChainIds));
+      expect(chainIds.length).toBe(configChainIds.length);
+    });
+  });
+
+  describe('getAllChainConfigs', () => {
+    it('should return an array of ChainConfig objects', () => {
+      const configs = getAllChainConfigs();
+      expect(Array.isArray(configs)).toBe(true);
+      expect(configs.length).toBeGreaterThan(0);
+      configs.forEach(config => {
+        expect(config).toHaveProperty('contracts');
+        expect(config).toHaveProperty('eip712Domain');
+      });
+    });
+
+    it('should return all configs from the chainConfig', () => {
+      const configs = getAllChainConfigs();
+      expect(configs.length).toBe(Object.keys(chainConfig).length);
+    });
+  });
+
+  describe('mergeChainConfigs', () => {
+    it('should merge provided configs with existing ones', () => {
+      const existingChainId = Object.keys(chainConfig)[0];
+      const newChainId = '999999';
+      const providedConfigs: { [chainId: string]: PartialChainConfig | ChainConfig } = {
+        [existingChainId]: {
+          contracts: {
+            atlas: { address: '0x1234567890123456789012345678901234567890' }
+          }
+        },
+        [newChainId]: {
+          contracts: {
+            atlas: { address: '0x0987654321098765432109876543210987654321' },
+            atlasVerification: { address: '0x0987654321098765432109876543210987654321' },
+            sorter: { address: '0x0987654321098765432109876543210987654321' },
+            simulator: { address: '0x0987654321098765432109876543210987654321' },
+            multicall3: { address: '0x0987654321098765432109876543210987654321' }
+          },
+          eip712Domain: {
+            name: 'New Chain',
+            version: '1',
+            chainId: 999999,
+            verifyingContract: '0x1111111111111111111111111111111111111111'
+          }
+        }
+      };
+
+      const mergedConfigs = mergeChainConfigs(providedConfigs);
+
+      // Check if existing chain config is updated
+      expect(mergedConfigs[existingChainId].contracts.atlas.address).toBe('0x1234567890123456789012345678901234567890');
+
+      // Check if new chain config is added
+      expect(mergedConfigs).toHaveProperty(newChainId);
+      expect(mergedConfigs[newChainId].contracts.atlas.address).toBe('0x0987654321098765432109876543210987654321');
+      expect(mergedConfigs[newChainId].eip712Domain.name).toBe('New Chain');
+    });
+
+    it('should not modify the original chainConfig', () => {
+      const originalConfigCopy = JSON.parse(JSON.stringify(chainConfig));
+      const existingChainId = Object.keys(chainConfig)[0];
+      const providedConfigs: { [chainId: string]: PartialChainConfig } = {
+        [existingChainId]: {
+          contracts: {
+            atlas: { address: '0x0987654321098765432109876543210987654321' }
+          }
+        }
+      };
+
+      mergeChainConfigs(providedConfigs);
+
+      expect(chainConfig).toEqual(originalConfigCopy);
+    });
+
+    it('should throw an error when trying to add a new chain with incomplete config', () => {
+      const newChainId = '999999';
+      const incompleteConfig: { [chainId: string]: PartialChainConfig } = {
+        [newChainId]: {
+          contracts: {
+            atlas: { address: '0x0987654321098765432109876543210987654321' }
+          }
+        }
+      };
+
+      expect(() => mergeChainConfigs(incompleteConfig)).toThrow(
+        `Full chain configuration must be provided for new chainId: ${newChainId}`
       );
     });
   });
