@@ -41,23 +41,29 @@ export function mergeChainConfigs(providedConfigs: { [chainId: string]: PartialC
   
   for (const [chainId, providedConfig] of Object.entries(providedConfigs)) {
     if (mergedConfig[chainId]) {
-      // Existing chain: merge partial config
-      mergedConfig[chainId] = {
-        ...mergedConfig[chainId],
-        ...providedConfig,
-        contracts: {
-          ...mergedConfig[chainId].contracts,
-          ...(providedConfig.contracts as { [key: string]: { address: string } }),
-        },
-        eip712Domain: {
-          ...mergedConfig[chainId].eip712Domain,
-          ...providedConfig.eip712Domain,
-        },
-      };
+      // Existing chain
+      if (isFullChainConfig(providedConfig)) {
+        // Prioritize new complete config
+        mergedConfig[chainId] = providedConfig as ChainConfig;
+      } else {
+        // Merge partial config
+        mergedConfig[chainId] = {
+          ...mergedConfig[chainId],
+          ...providedConfig,
+          contracts: {
+            ...mergedConfig[chainId].contracts,
+            ...(providedConfig.contracts as { [key: string]: { address: string } }),
+          },
+          eip712Domain: {
+            ...mergedConfig[chainId].eip712Domain,
+            ...providedConfig.eip712Domain,
+          },
+        };
+      }
     } else {
       // New chain: ensure full config is provided
       if (isFullChainConfig(providedConfig)) {
-        mergedConfig[chainId] = providedConfig;
+        mergedConfig[chainId] = providedConfig as ChainConfig;
       } else {
         throw new Error(`Full chain configuration must be provided for new chainId: ${chainId}`);
       }
