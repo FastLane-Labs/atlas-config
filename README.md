@@ -17,7 +17,7 @@ npm install @fastlane-labs/atlas-config
 Get the package using `go get`:
 
 ```bash
-go get github.com/fastlane-labs/atlas-config/golang/chainconfig
+go get github.com/fastLane-labs/atlas-config/golang/config
 ```
 
 ## Usage
@@ -32,6 +32,7 @@ import { getChainConfig } from '@fastlane-labs/atlas-config';
 const config = getChainConfig(137); // Polygon Mainnet
 console.log(config.name); // Outputs: "Polygon Mainnet"
 ```
+For more detailed documentation on using the TypeScript package, please refer to the [TypeScript README](./typescript/README.md).
 
 ### Go
 
@@ -40,7 +41,7 @@ Import the package and use the `GetChainConfig` function:
 ```go
 import (
     "fmt"
-    "github.com/fastlane-labs/atlas-config/golang/chainconfig"
+    "github.com/fastlane-labs/atlas-config/golang/config"
 )
 
 func main() {
@@ -53,6 +54,8 @@ func main() {
     fmt.Println(config.Name) // Outputs: "Polygon Mainnet"
 }
 ```
+
+For more detailed documentation on using the Go package, please refer to the [Go README](./golang/README.md).
 
 ## Configuration Structure
 
