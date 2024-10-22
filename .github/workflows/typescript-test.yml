@@ -1,0 +1,40 @@
+name: TypeScript Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run TypeScript Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9.9.0
+
+    - name: Install dependencies
+      working-directory: ./typescript
+      run: pnpm install --frozen-lockfile
+
+    - name: Build
+      working-directory: ./typescript
+      run: pnpm build
+
+    - name: Run tests
+      working-directory: ./typescript
+      run: pnpm test
