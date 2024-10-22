@@ -77,16 +77,11 @@ export function mergeChainConfigs(providedConfigs: { [chainId: string]: PartialC
 function isFullChainConfig(config: PartialChainConfig | ChainConfig): config is ChainConfig {
   return (
     typeof config.contracts === 'object' &&
-    typeof config.contracts.atlas === 'object' &&
-    typeof config.contracts.atlas.address === 'string' &&
-    typeof config.contracts.atlasVerification === 'object' &&
-    typeof config.contracts.atlasVerification.address === 'string' &&
-    typeof config.contracts.sorter === 'object' &&
-    typeof config.contracts.sorter.address === 'string' &&
-    typeof config.contracts.simulator === 'object' &&
-    typeof config.contracts.simulator.address === 'string' &&
-    typeof config.contracts.multicall3 === 'object' &&
-    typeof config.contracts.multicall3.address === 'string' &&
+    typeof config.contracts.atlas === 'string' &&
+    typeof config.contracts.atlasVerification === 'string' &&
+    typeof config.contracts.sorter === 'string' &&
+    typeof config.contracts.simulator === 'string' &&
+    typeof config.contracts.multicall3 === 'string' &&
     typeof config.eip712Domain === 'object' &&
     typeof config.eip712Domain.name === 'string' &&
     typeof config.eip712Domain.version === 'string' &&

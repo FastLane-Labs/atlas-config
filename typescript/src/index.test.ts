@@ -1,5 +1,6 @@
 import { chainConfig, mergeChainConfigs } from './index';
 import { ChainConfig } from './types';
+import { beforeEach, describe, expect, it } from '@jest/globals';
 
 describe('mergeChainConfigs', () => {
   beforeEach(() => {
@@ -7,11 +8,11 @@ describe('mergeChainConfigs', () => {
     (global as any).chainConfig = {
       '137': {
         contracts: {
-          atlas: { address: '0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5' },
-          atlasVerification: { address: '0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220' },
-          sorter: { address: '0x81f1E70A11A9E10Fa314cC093D149E5ec56EE97f' },
-          simulator: { address: '0xfBc81A39459E0D82EC31B4e585f7A318AFAdB49B' },
-          multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' },
+          atlas: '0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5',
+          atlasVerification: '0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220',
+          sorter: '0x81f1E70A11A9E10Fa314cC093D149E5ec56EE97f',
+          simulator: '0xfBc81A39459E0D82EC31B4e585f7A318AFAdB49B',
+          multicall3: '0xcA11bde05977b3631167028862bE2a173976CA11',
         },
         eip712Domain: {
           name: 'AtlasVerification',
@@ -27,23 +28,23 @@ describe('mergeChainConfigs', () => {
     const result = mergeChainConfigs({
       '137': {
         contracts: {
-          atlasVerification: { address: '0x7000000000000000000000000000000000000000' },
+          atlasVerification: '0x7000000000000000000000000000000000000000',
         },
       },
     });
 
-    expect(result['137'].contracts.atlas.address).toBe('0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5');
-    expect(result['137'].contracts.atlasVerification.address).toBe('0x7000000000000000000000000000000000000000');
+    expect(result['137'].contracts.atlas).toBe('0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5');
+    expect(result['137'].contracts.atlasVerification).toBe('0x7000000000000000000000000000000000000000');
   });
 
   it('should prioritize new complete config for existing chain', () => {
     const newConfig: ChainConfig = {
       contracts: {
-        atlas: { address: '0x3000000000000000000000000000000000000000' },
-        atlasVerification: { address: '0x4000000000000000000000000000000000000000' },
-        sorter: { address: '0x5000000000000000000000000000000000000000' },
-        simulator: { address: '0x6000000000000000000000000000000000000000' },
-        multicall3: { address: '0x7000000000000000000000000000000000000000' },
+        atlas: '0x3000000000000000000000000000000000000000',
+        atlasVerification: '0x4000000000000000000000000000000000000000',
+        sorter: '0x5000000000000000000000000000000000000000',
+        simulator: '0x6000000000000000000000000000000000000000',
+        multicall3: '0x7000000000000000000000000000000000000000',
       },
       eip712Domain: {
         name: 'New',
@@ -61,11 +62,11 @@ describe('mergeChainConfigs', () => {
   it('should add new chain config', () => {
     const newConfig: ChainConfig = {
       contracts: {
-        atlas: { address: '0x9000000000000000000000000000000000000000' },
-        atlasVerification: { address: '0xa000000000000000000000000000000000000000' },
-        sorter: { address: '0xb000000000000000000000000000000000000000' },
-        simulator: { address: '0xc000000000000000000000000000000000000000' },
-        multicall3: { address: '0xd000000000000000000000000000000000000000' },
+        atlas:  '0x9000000000000000000000000000000000000000',
+        atlasVerification: '0xa000000000000000000000000000000000000000',
+        sorter: '0xb000000000000000000000000000000000000000',
+        simulator: '0xc000000000000000000000000000000000000000',
+        multicall3: '0xd000000000000000000000000000000000000000',
       },
       eip712Domain: {
         name: 'New Chain',
@@ -85,7 +86,7 @@ describe('mergeChainConfigs', () => {
       mergeChainConfigs({
         '3': {
           contracts: {
-            atlas: { address: '0xf000000000000000000000000000000000000000' },
+            atlas: '0xf000000000000000000000000000000000000000',
           },
         } as ChainConfig,
       });
@@ -98,16 +99,16 @@ describe('mergeChainConfigs', () => {
     const providedConfigs = {
       [existingChainId]: {
         contracts: {
-          atlas: { address: '0x7000000000000000000000000000000000000000' }
+          atlas: '0x7000000000000000000000000000000000000000'
         }
       },
       [newChainId]: {
         contracts: {
-          atlas: { address: '0x8000000000000000000000000000000000000000' },
-          atlasVerification: { address: '0x9000000000000000000000000000000000000000' },
-          sorter: { address: '0xa000000000000000000000000000000000000000' },
-          simulator: { address: '0xb000000000000000000000000000000000000000' },
-          multicall3: { address: '0xc000000000000000000000000000000000000000' }
+          atlas: '0x8000000000000000000000000000000000000000',
+          atlasVerification: '0x9000000000000000000000000000000000000000',
+          sorter: '0xa000000000000000000000000000000000000000',
+          simulator: '0xb000000000000000000000000000000000000000',
+          multicall3: '0xc000000000000000000000000000000000000000'
         },
         eip712Domain: {
           name: 'New Chain',
@@ -120,8 +121,8 @@ describe('mergeChainConfigs', () => {
 
     const mergedConfigs = mergeChainConfigs(providedConfigs);
 
-    expect(mergedConfigs[existingChainId].contracts.atlas.address).toBe('0x7000000000000000000000000000000000000000');
-    expect(mergedConfigs[newChainId].contracts.atlas.address).toBe('0x8000000000000000000000000000000000000000');
+    expect(mergedConfigs[existingChainId].contracts.atlas).toBe('0x7000000000000000000000000000000000000000');
+    expect(mergedConfigs[newChainId].contracts.atlas).toBe('0x8000000000000000000000000000000000000000');
   });
 
   it('should not change anything when merging an empty config', () => {
@@ -143,8 +144,8 @@ describe('mergeChainConfigs', () => {
     const providedConfig = {
       [existingChainId]: {
         contracts: {
-          atlas: { address: '0x7000000000000000000000000000000000000000' },
-          sorter: { address: '0x8000000000000000000000000000000000000000' }
+          atlas: '0x7000000000000000000000000000000000000000',
+          sorter: '0x8000000000000000000000000000000000000000'
         },
         eip712Domain: {
           name: 'Updated Chain',
@@ -155,8 +156,8 @@ describe('mergeChainConfigs', () => {
 
     const mergedConfigs = mergeChainConfigs(providedConfig);
 
-    expect(mergedConfigs[existingChainId].contracts.atlas.address).toBe('0x7000000000000000000000000000000000000000');
-    expect(mergedConfigs[existingChainId].contracts.sorter.address).toBe('0x8000000000000000000000000000000000000000');
+    expect(mergedConfigs[existingChainId].contracts.atlas).toBe('0x7000000000000000000000000000000000000000');
+    expect(mergedConfigs[existingChainId].contracts.sorter).toBe('0x8000000000000000000000000000000000000000');
     expect(mergedConfigs[existingChainId].eip712Domain.name).toBe('Updated Chain');
     expect(mergedConfigs[existingChainId].eip712Domain.version).toBe('2.0');
   });
@@ -167,7 +168,7 @@ describe('mergeChainConfigs', () => {
     const providedConfig = {
       [existingChainId]: {
         contracts: {
-          atlas: { address: '0x7000000000000000000000000000000000000000' }
+          atlas: '0x7000000000000000000000000000000000000000'
         }
       }
     };
