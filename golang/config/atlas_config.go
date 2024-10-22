@@ -15,16 +15,12 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 )
 
-type ContractJSON struct {
-	Address string `json:"address"`
-}
-
 type ContractsJSON struct {
-	Atlas             ContractJSON `json:"atlas"`
-	AtlasVerification ContractJSON `json:"atlasVerification"`
-	Sorter            ContractJSON `json:"sorter"`
-	Simulator         ContractJSON `json:"simulator"`
-	Multicall3        ContractJSON `json:"multicall3"`
+	Atlas             string `json:"atlas"`
+	AtlasVerification string `json:"atlasVerification"`
+	Sorter            string `json:"sorter"`
+	Simulator         string `json:"simulator"`
+	Multicall3        string `json:"multicall3"`
 }
 
 type Contracts struct {
@@ -84,11 +80,11 @@ func init() {
 	for chainID, config := range chainConfigJSON {
 		chainConfig[chainID] = ChainConfig{
 			Contracts: Contracts{
-				Atlas:             common.HexToAddress(config.Contracts.Atlas.Address),
-				AtlasVerification: common.HexToAddress(config.Contracts.AtlasVerification.Address),
-				Sorter:            common.HexToAddress(config.Contracts.Sorter.Address),
-				Simulator:         common.HexToAddress(config.Contracts.Simulator.Address),
-				Multicall3:        common.HexToAddress(config.Contracts.Multicall3.Address),
+				Atlas:             common.HexToAddress(config.Contracts.Atlas),
+				AtlasVerification: common.HexToAddress(config.Contracts.AtlasVerification),
+				Sorter:            common.HexToAddress(config.Contracts.Sorter),
+				Simulator:         common.HexToAddress(config.Contracts.Simulator),
+				Multicall3:        common.HexToAddress(config.Contracts.Multicall3),
 			},
 			EIP712Domain: config.EIP712Domain,
 		}
