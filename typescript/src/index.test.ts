@@ -33,7 +33,7 @@ describe('mergeChainConfigs', () => {
       },
     });
 
-    expect(result['137'].contracts.atlas).toBe('0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5');
+    expect(result['137'].contracts.atlas).toBe('0x912AceADa1b9c9B378894D0610C5684167710FDD');
     expect(result['137'].contracts.atlasVerification).toBe('0x7000000000000000000000000000000000000000');
   });
 
