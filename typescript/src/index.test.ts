@@ -8,17 +8,17 @@ describe('mergeChainConfigs', () => {
     (global as any).chainConfig = {
       '137': {
         contracts: {
-          atlas: '0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5',
-          atlasVerification: '0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220',
-          sorter: '0x81f1E70A11A9E10Fa314cC093D149E5ec56EE97f',
-          simulator: '0xfBc81A39459E0D82EC31B4e585f7A318AFAdB49B',
+          atlas: '0x912AceADa1b9c9B378894D0610C5684167710FDD',
+          atlasVerification: '0x2fBF38a38D753E4ce398000CCC552Efa50702e1e',
+          sorter: '0xFac7bf300E7eb17A2eD0Be67b60f5FeDd2E28E90',
+          simulator: '0x1244E4B8D93D2A72692Bf3600f7f5a494e24895a',
           multicall3: '0xcA11bde05977b3631167028862bE2a173976CA11',
         },
         eip712Domain: {
           name: 'AtlasVerification',
           version: '1.0',
           chainId: 137,
-          verifyingContract: '0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220',
+          verifyingContract: '0x2fBF38a38D753E4ce398000CCC552Efa50702e1e',
         },
       },
     };
@@ -33,7 +33,7 @@ describe('mergeChainConfigs', () => {
       },
     });
 
-    expect(result['137'].contracts.atlas).toBe('0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5');
+    expect(result['137'].contracts.atlas).toBe('0x912AceADa1b9c9B378894D0610C5684167710FDD');
     expect(result['137'].contracts.atlasVerification).toBe('0x7000000000000000000000000000000000000000');
   });
 
