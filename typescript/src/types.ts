@@ -1,10 +1,10 @@
 export type ChainConfig = {
   contracts: {
-    atlas: { address: string };
-    atlasVerification: { address: string };
-    sorter: { address: string };
-    simulator: { address: string };
-    multicall3: { address: string };
+    atlas: string;
+    atlasVerification: string;
+    sorter: string;
+    simulator: string;
+    multicall3: string;
   };
   eip712Domain: {
     name: string;

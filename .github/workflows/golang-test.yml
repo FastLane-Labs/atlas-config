@@ -1,0 +1,45 @@
+name: Golang Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Golang Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.22.5']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go ${{ matrix.go-version }}
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Install dependencies
+      working-directory: ./golang
+      run: go mod download
+
+    - name: Copy config file
+      working-directory: ./golang
+      run: make copy-config
+
+    - name: Run tests
+      working-directory: ./golang
+      run: make test
+
+    - name: Run lint
+      working-directory: ./golang
+      run: |
+        go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        make lint
+
+    - name: Run all checks
+      working-directory: ./golang
+      run: make check

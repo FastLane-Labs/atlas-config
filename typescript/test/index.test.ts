@@ -63,11 +63,11 @@ describe('Chain Config', () => {
       expect(config).toBeInstanceOf(Object);
       expect(config?.contracts).toEqual(
         expect.objectContaining({
-          atlas: expect.any(Object),
-          atlasVerification: expect.any(Object),
-          sorter: expect.any(Object),
-          simulator: expect.any(Object),
-          multicall3: expect.any(Object)
+          atlas: expect.any(String),
+          atlasVerification: expect.any(String),
+          sorter: expect.any(String),
+          simulator: expect.any(String),
+          multicall3: expect.any(String)
         })
       );
       expect(config?.eip712Domain).toEqual(
@@ -120,26 +120,26 @@ describe('Chain Config', () => {
       const providedConfigs: { [chainId: string]: PartialChainConfig } = {
         [existingChainId]: {
           contracts: {
-            atlas: { address: '0x7000000000000000000000000000000000000000' }
+            atlas: '0x7000000000000000000000000000000000000000'
           }
         }
       };
 
       const mergedConfigs = mergeChainConfigs(providedConfigs);
 
-      expect(mergedConfigs[existingChainId].contracts.atlas.address).toBe('0x7000000000000000000000000000000000000000');
-      expect(mergedConfigs[existingChainId].contracts.atlasVerification.address).toBe(chainConfig[existingChainId].contracts.atlasVerification.address);
+      expect(mergedConfigs[existingChainId].contracts.atlas).toBe('0x7000000000000000000000000000000000000000');
+      expect(mergedConfigs[existingChainId].contracts.atlasVerification).toBe(chainConfig[existingChainId].contracts.atlasVerification);
     });
 
     it('should add new chain config', () => {
       const newChainId = '999999';
       const newConfig: ChainConfig = {
         contracts: {
-          atlas: { address: '0x9000000000000000000000000000000000000000' },
-          atlasVerification: { address: '0xa000000000000000000000000000000000000000' },
-          sorter: { address: '0xb000000000000000000000000000000000000000' },
-          simulator: { address: '0xc000000000000000000000000000000000000000' },
-          multicall3: { address: '0xd000000000000000000000000000000000000000' }
+          atlas: '0x9000000000000000000000000000000000000000',
+          atlasVerification: '0xa000000000000000000000000000000000000000',
+          sorter: '0xb000000000000000000000000000000000000000',
+          simulator: '0xc000000000000000000000000000000000000000',
+          multicall3: '0xd000000000000000000000000000000000000000'
         },
         eip712Domain: {
           name: 'New Chain',
@@ -159,7 +159,7 @@ describe('Chain Config', () => {
       const newChainId = '888888';
       const incompleteConfig: PartialChainConfig = {
         contracts: {
-          atlas: { address: '0xf000000000000000000000000000000000000000' }
+          atlas: '0xf000000000000000000000000000000000000000'
         }
       };
 
