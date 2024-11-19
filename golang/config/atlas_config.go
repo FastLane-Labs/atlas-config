@@ -49,7 +49,12 @@ type ChainConfig struct {
 }
 
 var (
-	chainConfig map[string]ChainConfig
+	AtlasV100    = "1.0.0"
+	AtlasV101    = "1.0.1"
+	AtlasV110    = "1.1.0"
+	AtlasVLatest = AtlasV110
+
+	chainConfig map[string]map[string]ChainConfig
 	configMutex sync.RWMutex
 )
 
@@ -70,36 +75,50 @@ func init() {
 		panic(fmt.Sprintf("Error reading config file: %v", err))
 	}
 
-	var chainConfigJSON map[string]ChainConfigJSON
+	var chainConfigJSON map[string]map[string]ChainConfigJSON
 	err = json.Unmarshal(byteValue, &chainConfigJSON)
 	if err != nil {
 		panic(fmt.Sprintf("Error unmarshalling config: %v", err))
 	}
 
-	chainConfig = make(map[string]ChainConfig)
-	for chainID, config := range chainConfigJSON {
-		chainConfig[chainID] = ChainConfig{
-			Contracts: Contracts{
-				Atlas:             common.HexToAddress(config.Contracts.Atlas),
-				AtlasVerification: common.HexToAddress(config.Contracts.AtlasVerification),
-				Sorter:            common.HexToAddress(config.Contracts.Sorter),
-				Simulator:         common.HexToAddress(config.Contracts.Simulator),
-				Multicall3:        common.HexToAddress(config.Contracts.Multicall3),
-			},
-			EIP712Domain: config.EIP712Domain,
+	chainConfig = make(map[string]map[string]ChainConfig)
+	for chainID, versionConfig := range chainConfigJSON {
+		chainConfig[chainID] = make(map[string]ChainConfig)
+
+		for version, config := range versionConfig {
+			chainConfig[chainID][version] = ChainConfig{
+				Contracts: Contracts{
+					Atlas:             common.HexToAddress(config.Contracts.Atlas),
+					AtlasVerification: common.HexToAddress(config.Contracts.AtlasVerification),
+					Sorter:            common.HexToAddress(config.Contracts.Sorter),
+					Simulator:         common.HexToAddress(config.Contracts.Simulator),
+					Multicall3:        common.HexToAddress(config.Contracts.Multicall3),
+				},
+				EIP712Domain: config.EIP712Domain,
+			}
 		}
 	}
 }
 
 // GetChainConfig returns the chain configuration for the given chainId
-func GetChainConfig(chainId uint64) (*ChainConfig, error) {
+func GetChainConfig(chainId uint64, version *string) (*ChainConfig, error) {
+	if version == nil {
+		version = &AtlasVLatest
+	}
+
 	configMutex.RLock()
 	defer configMutex.RUnlock()
 
-	config, ok := chainConfig[strconv.FormatUint(chainId, 10)]
+	versionConfig, ok := chainConfig[strconv.FormatUint(chainId, 10)]
 	if !ok {
 		return nil, fmt.Errorf("chain configuration not found for chainId: %d", chainId)
 	}
+
+	config, ok := versionConfig[*version]
+	if !ok {
+		return nil, fmt.Errorf("chain configuration not found for chainId: %d, version: %s", chainId, *version)
+	}
+
 	return &config, nil
 }
 
@@ -117,39 +136,50 @@ func GetSupportedChainIds() []uint64 {
 }
 
 // GetAllChainConfigs returns all chain configurations
-func GetAllChainConfigs() map[string]ChainConfig {
+func GetAllChainConfigs() map[string]map[string]ChainConfig {
 	configMutex.RLock()
 	defer configMutex.RUnlock()
 
 	// Create a deep copy to avoid potential race conditions
-	configCopy := make(map[string]ChainConfig, len(chainConfig))
+	configCopy := make(map[string]map[string]ChainConfig, len(chainConfig))
 	for k, v := range chainConfig {
-		configCopy[k] = v
+		configCopy[k] = make(map[string]ChainConfig, len(v))
+		for k2, v2 := range v {
+			configCopy[k][k2] = v2
+		}
 	}
+
 	return configCopy
 }
 
 // MergeChainConfigs merges the provided chain configs with the original
-func MergeChainConfigs(providedConfigs map[string]ChainConfig) error {
+func MergeChainConfigs(providedConfigs map[string]map[string]ChainConfig) error {
 	configMutex.Lock()
 	defer configMutex.Unlock()
 
-	for chainId, providedConfig := range providedConfigs {
-		if _, ok := chainConfig[chainId]; ok {
-			// Existing chain
-			if isFullChainConfig(providedConfig) {
-				// Prioritize new complete config
-				chainConfig[chainId] = providedConfig
+	for chainId, versionConfig := range providedConfigs {
+		for version, providedConfig := range versionConfig {
+			if _, ok := chainConfig[chainId][version]; ok {
+				// Existing chain/config
+				if isFullChainConfig(providedConfig) {
+					// Prioritize new complete config
+					chainConfig[chainId][version] = providedConfig
+				} else {
+					// Merge partial config
+					chainConfig[chainId][version] = mergeConfigs(chainConfig[chainId][version], providedConfig)
+				}
 			} else {
-				// Merge partial config
-				chainConfig[chainId] = mergeConfigs(chainConfig[chainId], providedConfig)
+				// New chain: ensure full config is provided
+				if !isFullChainConfig(providedConfig) {
+					return fmt.Errorf("full chain configuration must be provided for new chainId: %s, version: %s", chainId, version)
+				}
+
+				if _, ok := chainConfig[chainId]; !ok {
+					chainConfig[chainId] = make(map[string]ChainConfig)
+				}
+
+				chainConfig[chainId][version] = providedConfig
 			}
-		} else {
-			// New chain: ensure full config is provided
-			if !isFullChainConfig(providedConfig) {
-				return fmt.Errorf("full chain configuration must be provided for new chainId: %s", chainId)
-			}
-			chainConfig[chainId] = providedConfig
 		}
 	}
 	return nil
@@ -206,48 +236,72 @@ func isFullChainConfig(config ChainConfig) bool {
 		config.EIP712Domain.VerifyingContract != ""
 }
 
-func GetAtlasAddress(chainId uint64) (common.Address, error) {
-	config, err := GetChainConfig(chainId)
+func GetAtlasAddress(chainId uint64, version *string) (common.Address, error) {
+	if version == nil {
+		version = &AtlasVLatest
+	}
+
+	config, err := GetChainConfig(chainId, version)
 	if err != nil {
 		return common.Address{}, err
 	}
 	return config.Contracts.Atlas, nil
 }
 
-func GetAtlasVerificationAddress(chainId uint64) (common.Address, error) {
-	config, err := GetChainConfig(chainId)
+func GetAtlasVerificationAddress(chainId uint64, version *string) (common.Address, error) {
+	if version == nil {
+		version = &AtlasVLatest
+	}
+
+	config, err := GetChainConfig(chainId, version)
 	if err != nil {
 		return common.Address{}, err
 	}
 	return config.Contracts.AtlasVerification, nil
 }
 
-func GetSorterAddress(chainId uint64) (common.Address, error) {
-	config, err := GetChainConfig(chainId)
+func GetSorterAddress(chainId uint64, version *string) (common.Address, error) {
+	if version == nil {
+		version = &AtlasVLatest
+	}
+
+	config, err := GetChainConfig(chainId, version)
 	if err != nil {
 		return common.Address{}, err
 	}
 	return config.Contracts.Sorter, nil
 }
 
-func GetSimulatorAddress(chainId uint64) (common.Address, error) {
-	config, err := GetChainConfig(chainId)
+func GetSimulatorAddress(chainId uint64, version *string) (common.Address, error) {
+	if version == nil {
+		version = &AtlasVLatest
+	}
+
+	config, err := GetChainConfig(chainId, version)
 	if err != nil {
 		return common.Address{}, err
 	}
 	return config.Contracts.Simulator, nil
 }
 
-func GetMulticall3Address(chainId uint64) (common.Address, error) {
-	config, err := GetChainConfig(chainId)
+func GetMulticall3Address(chainId uint64, version *string) (common.Address, error) {
+	if version == nil {
+		version = &AtlasVLatest
+	}
+
+	config, err := GetChainConfig(chainId, version)
 	if err != nil {
 		return common.Address{}, err
 	}
 	return config.Contracts.Multicall3, nil
 }
 
-func GetEIP712Domain(chainId uint64) (*apitypes.TypedDataDomain, error) {
-	config, err := GetChainConfig(chainId)
+func GetEIP712Domain(chainId uint64, version *string) (*apitypes.TypedDataDomain, error) {
+	if version == nil {
+		version = &AtlasVLatest
+	}
+
+	config, err := GetChainConfig(chainId, version)
 	if err != nil {
 		return nil, err
 	}
