@@ -8,18 +8,20 @@ describe('Chain Config', () => {
     // Reset chainConfig before each test with a complete configuration
     (global as any).chainConfig = {
       '1': {
-        contracts: {
-          atlas: { address: '0x1000000000000000000000000000000000000000' },
-          atlasVerification: { address: '0x2000000000000000000000000000000000000000' },
-          sorter: { address: '0x3000000000000000000000000000000000000000' },
-          simulator: { address: '0x4000000000000000000000000000000000000000' },
-          multicall3: { address: '0x5000000000000000000000000000000000000000' },
-        },
-        eip712Domain: {
-          name: 'Initial',
-          version: '1',
-          chainId: 1,
-          verifyingContract: '0x6000000000000000000000000000000000000000',
+        '1.0.0': {
+          contracts: {
+            atlas: { address: '0x1000000000000000000000000000000000000000' },
+            atlasVerification: { address: '0x2000000000000000000000000000000000000000' },
+            sorter: { address: '0x3000000000000000000000000000000000000000' },
+            simulator: { address: '0x4000000000000000000000000000000000000000' },
+            multicall3: { address: '0x5000000000000000000000000000000000000000' },
+          },
+          eip712Domain: {
+            name: 'Initial',
+            version: '1',
+            chainId: 1,
+            verifyingContract: '0x6000000000000000000000000000000000000000',
+          },
         },
       },
     };
@@ -33,7 +35,7 @@ describe('Chain Config', () => {
   describe('getChainConfig', () => {
     it('should return the correct config for a valid chainId', () => {
       // Assuming chainId 11155111 (Sepolia testnet) exists in the config
-      const config = getChainConfig(11155111);
+      const config = getChainConfig(11155111, '1.0.0');
       
       // Check if the chainId exists in chainConfig
       expect(chainConfig).toHaveProperty('11155111');
@@ -117,18 +119,20 @@ describe('Chain Config', () => {
   describe('mergeChainConfigs', () => {
     it('should merge partial config for existing chain', () => {
       const existingChainId = Object.keys(chainConfig)[0];  // Get the first chain ID from the existing config
-      const providedConfigs: { [chainId: string]: PartialChainConfig } = {
+      const providedConfigs: { [chainId: string]: { [version: string]: PartialChainConfig } } = {
         [existingChainId]: {
+          '1.0.0': {
           contracts: {
-            atlas: '0x7000000000000000000000000000000000000000'
-          }
-        }
+              atlas: '0x7000000000000000000000000000000000000000',
+            },
+          },
+        },
       };
 
       const mergedConfigs = mergeChainConfigs(providedConfigs);
 
-      expect(mergedConfigs[existingChainId].contracts.atlas).toBe('0x7000000000000000000000000000000000000000');
-      expect(mergedConfigs[existingChainId].contracts.atlasVerification).toBe(chainConfig[existingChainId].contracts.atlasVerification);
+      expect(mergedConfigs[existingChainId]['1.0.0'].contracts.atlas).toBe('0x7000000000000000000000000000000000000000');
+      expect(mergedConfigs[existingChainId]['1.0.0'].contracts.atlasVerification).toBe(chainConfig[existingChainId]['1.0.0'].contracts.atlasVerification);
     });
 
     it('should add new chain config', () => {
@@ -149,7 +153,7 @@ describe('Chain Config', () => {
         }
       };
 
-      const providedConfigs = { [newChainId]: newConfig };
+      const providedConfigs = { [newChainId]: { '1.0.0': newConfig } };
       const mergedConfigs = mergeChainConfigs(providedConfigs);
 
       expect(mergedConfigs[newChainId]).toEqual(newConfig);
@@ -163,7 +167,7 @@ describe('Chain Config', () => {
         }
       };
 
-      expect(() => mergeChainConfigs({ [newChainId]: incompleteConfig })).toThrow(
+      expect(() => mergeChainConfigs({ [newChainId]: { '1.0.0': incompleteConfig } })).toThrow(
         `Full chain configuration must be provided for new chainId: ${newChainId}`
       );
     });
