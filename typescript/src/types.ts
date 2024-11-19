@@ -1,3 +1,8 @@
+export const AtlasV100 = "1.0.0";
+export const AtlasV101 = "1.0.1";
+export const AtlasV110 = "1.1.0";
+export const AtlasVLatest = AtlasV110;
+
 export type ChainConfig = {
   contracts: {
     atlas: string;
