@@ -1,6 +1,6 @@
 {
   "11155111": {
-    "1.0.0": {
+    "1.0": {
       "contracts": {
         "atlas": "0x9EE12d2fed4B43F4Be37F69930CcaD9B65133482",
         "atlasVerification": "0xB6F66a1b7cec02324D83c8DEA192818cA23A08B3",
@@ -18,7 +18,7 @@
   },
 
   "137": {
-    "1.0.1": {
+    "1.1": {
       "contracts": {
         "atlas": "0xB363f4D32DdB0b43622eA07Ae9145726941272B4",
         "atlasVerification": "0x621c6970fD9F124230feE35117d318069056819a",
@@ -36,7 +36,7 @@
   },
 
   "80002": {
-    "1.0.0": {
+    "1.0": {
       "contracts": {
         "atlas": "0x282BdDFF5e58793AcAb65438b257Dbd15A8745C9",
         "atlasVerification": "0x3b7B38362bB7E2F000Cd2432343F3483F785F435",
@@ -54,7 +54,7 @@
   },
 
   "56": {
-    "1.0.0": {
+    "1.0": {
       "contracts": {
         "atlas": "0xD72D821dA82964c0546a5501347a3959808E072f",
         "atlasVerification": "0xae631aCDC436b9Dfd75C5629F825330d91459445",
@@ -72,7 +72,7 @@
   },
 
   "97": {
-    "1.0.0": {
+    "1.0": {
       "contracts": {
         "atlas": "0x164d3f6Bd3e78220f59e33729aA0E473C57EB067",
         "atlasVerification": "0xa4445464B090D92CD2BD1c6F487F5f6284B26F7B",
@@ -90,7 +90,7 @@
   },
 
   "8453": {
-    "1.0.0": {
+    "1.0": {
       "contracts": {
         "atlas": "0xAb665f032e6A20Ef7D43FfD4E92a2f4fd6d5771e",
         "atlasVerification": "0x81E8c782Abbe606366C246C6c85475009ff6fb84",
@@ -106,7 +106,7 @@
       }
     },
 
-    "1.0.1": {
+    "1.1": {
       "contracts": {
         "atlas": "0x3efbaBE0ee916A4677D281c417E895a3e7411Ac2",
         "atlasVerification": "0x16839b7Bb46136B204Bcb7eA71c9226952c02b34",
@@ -124,7 +124,7 @@
   },
 
   "84532": {
-    "1.0.1": {
+    "1.1": {
       "contracts": {
         "atlas": "0xa55051bd82eFeA1dD487875C84fE9c016859659B",
         "atlasVerification": "0xf0E388C7DFfE14a61280a4E5b84d77be3d2875e3",
@@ -140,7 +140,7 @@
       }
     },
 
-    "1.1.0": {
+    "1.2": {
       "contracts": {
         "atlas": "0xda92A5d54149c30a1cA54155a9fF55F32c2E0570",
         "atlasVerification": "0xc38d38333687EA295753c214785E839eDdC7aebB",
@@ -158,7 +158,7 @@
   },
 
   "42161": {
-    "1.0.1": {
+    "1.1": {
       "contracts": {
         "atlas": "0xf0E388C7DFfE14a61280a4E5b84d77be3d2875e3",
         "atlasVerification": "0xD72D821dA82964c0546a5501347a3959808E072f",
