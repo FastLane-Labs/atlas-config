@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-import type { ChainConfig, VersionConfig, PartialChainConfig } from './types';
+import type { ChainConfig, VersionConfig, PartialChainConfig, PartialContractConfig, ContractConfig } from './types';
 
 let config: { [chainId: string]: ChainConfig } = {};
 
@@ -81,19 +81,51 @@ export function getAllChainConfigs(): { chainId: number; version: string; config
 }
 
 function isFullVersionConfig(config: any): config is VersionConfig {
-  return (
+  const hasAllContracts = 
     typeof config.contracts === 'object' &&
-    typeof config.contracts.atlas === 'string' &&
-    typeof config.contracts.atlasVerification === 'string' &&
-    typeof config.contracts.sorter === 'string' &&
-    typeof config.contracts.simulator === 'string' &&
-    typeof config.contracts.multicall3 === 'string' &&
+    config.contracts !== null &&
+    Object.entries(config.contracts).every(([key, value]) => 
+      value !== null &&
+      typeof value === 'object' && 
+      'address' in value && 
+      typeof value.address === 'string'
+    ) &&
+    ['atlas', 'atlasVerification', 'sorter', 'simulator', 'multicall3'].every(
+      key => key in config.contracts
+    );
+
+  const hasValidEip712Domain =
     typeof config.eip712Domain === 'object' &&
+    config.eip712Domain !== null &&
     typeof config.eip712Domain.name === 'string' &&
     typeof config.eip712Domain.version === 'string' &&
     typeof config.eip712Domain.chainId === 'number' &&
-    typeof config.eip712Domain.verifyingContract === 'string'
-  );
+    typeof config.eip712Domain.verifyingContract === 'string';
+
+  return hasAllContracts && hasValidEip712Domain;
+}
+
+function convertPartialContractConfig(partialConfig: PartialContractConfig): Partial<ContractConfig> {
+  const result: Partial<ContractConfig> = {};
+  for (const [key, value] of Object.entries(partialConfig)) {
+    if (value && 'address' in value) {
+      result[key as keyof ContractConfig] = value.address;
+    }
+  }
+  return result;
+}
+
+function convertToVersionConfig(config: any): VersionConfig {
+  return {
+    contracts: {
+      atlas: config.contracts.atlas.address,
+      atlasVerification: config.contracts.atlasVerification.address,
+      sorter: config.contracts.sorter.address,
+      simulator: config.contracts.simulator.address,
+      multicall3: config.contracts.multicall3.address
+    },
+    eip712Domain: config.eip712Domain
+  };
 }
 
 export function mergeChainConfigs(providedConfigs: { [chainId: string]: PartialChainConfig }): { [chainId: string]: ChainConfig } {
@@ -109,25 +141,26 @@ export function mergeChainConfigs(providedConfigs: { [chainId: string]: PartialC
         // Existing version
         if (isFullVersionConfig(providedVersionConfig)) {
           // Prioritize new complete config
-          mergedConfig[chainId][version] = providedVersionConfig;
+          mergedConfig[chainId][version] = convertToVersionConfig(providedVersionConfig);
         } else {
           // Merge partial config
+          const currentConfig = mergedConfig[chainId][version];
           mergedConfig[chainId][version] = {
-            ...mergedConfig[chainId][version],
+            ...currentConfig,
             contracts: {
-              ...mergedConfig[chainId][version].contracts,
-              ...providedVersionConfig.contracts,
+              ...currentConfig.contracts,
+              ...(providedVersionConfig.contracts ? convertPartialContractConfig(providedVersionConfig.contracts) : {})
             },
             eip712Domain: {
-              ...mergedConfig[chainId][version].eip712Domain,
-              ...providedVersionConfig.eip712Domain,
-            },
+              ...currentConfig.eip712Domain,
+              ...providedVersionConfig.eip712Domain
+            }
           };
         }
       } else {
         // New version: ensure full config is provided
         if (isFullVersionConfig(providedVersionConfig)) {
-          mergedConfig[chainId][version] = providedVersionConfig;
+          mergedConfig[chainId][version] = convertToVersionConfig(providedVersionConfig);
         } else {
           throw new Error(`Full version configuration must be provided for new version ${version} on chainId: ${chainId}`);
         }
