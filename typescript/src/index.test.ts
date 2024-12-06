@@ -1,180 +1,172 @@
-import { chainConfig, mergeChainConfigs } from './index';
-import { ChainConfig } from './types';
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
+import {
+  getChainConfig,
+  getSupportedChainIds,
+  getVersionsForChain,
+  getAllChainConfigs,
+  mergeChainConfigs,
+  chainConfig
+} from './index';
+import type { PartialChainConfig, PartialVersionConfig } from './types';
 
-describe('mergeChainConfigs', () => {
-  beforeEach(() => {
-    // Reset chainConfig before each test
-    (global as any).chainConfig = {
-      '137': {
-        contracts: {
-          atlas: '0xB363f4D32DdB0b43622eA07Ae9145726941272B4',
-          atlasVerification: '0x621c6970fD9F124230feE35117d318069056819a',
-          sorter: '0xf8Bd19064A77297A691a29d9a40dF76F32fc86ad',
-          simulator: '0x82A3460920582968688FD887F21c5F3155A3BBd4',
-          multicall3: '0xcA11bde05977b3631167028862bE2a173976CA11',
-        },
-        eip712Domain: {
-          name: 'AtlasVerification',
-          version: '1.0',
-          chainId: 137,
-          verifyingContract: '0x621c6970fD9F124230feE35117d318069056819a',
-        },
-      },
-    };
-  });
-
-  it('should merge partial config for existing chain', () => {
-    const result = mergeChainConfigs({
-      '137': {
-        contracts: {
-          atlasVerification: '0x7000000000000000000000000000000000000000',
-        },
-      },
+describe('Chain Config Tests', () => {
+  describe('getChainConfig', () => {
+    it('should return the latest version config when no version specified', () => {
+      const config = getChainConfig(84532);
+      expect(config.contracts.atlas).toBe('0xda92A5d54149c30a1cA54155a9fF55F32c2E0570'); // v1.2
     });
 
-    expect(result['137'].contracts.atlas).toBe('0xB363f4D32DdB0b43622eA07Ae9145726941272B4');
-    expect(result['137'].contracts.atlasVerification).toBe('0x7000000000000000000000000000000000000000');
+    it('should return specific version config when version is specified', () => {
+      const config = getChainConfig(84532, '1.1');
+      expect(config.contracts.atlas).toBe('0xa55051bd82eFeA1dD487875C84fE9c016859659B'); // v1.1
+    });
+
+    it('should throw error for invalid chain ID', () => {
+      expect(() => getChainConfig(999999)).toThrow('Chain configuration not found');
+    });
+
+    it('should throw error for invalid version', () => {
+      expect(() => getChainConfig(84532, '9.9')).toThrow('Version 9.9 not found');
+    });
   });
 
-  it('should prioritize new complete config for existing chain', () => {
-    const newConfig: ChainConfig = {
-      contracts: {
-        atlas: '0x3000000000000000000000000000000000000000',
-        atlasVerification: '0x4000000000000000000000000000000000000000',
-        sorter: '0x5000000000000000000000000000000000000000',
-        simulator: '0x6000000000000000000000000000000000000000',
-        multicall3: '0x7000000000000000000000000000000000000000',
-      },
-      eip712Domain: {
-        name: 'New',
-        version: '2',
-        chainId: 1,
-        verifyingContract: '0x8000000000000000000000000000000000000000',
-      },
-    };
-
-    const result = mergeChainConfigs({ '1': newConfig });
-
-    expect(result['1']).toEqual(newConfig);
+  describe('getSupportedChainIds', () => {
+    it('should return all supported chain IDs', () => {
+      const chainIds = getSupportedChainIds();
+      expect(chainIds).toContain(137);  // Polygon
+      expect(chainIds).toContain(84532); // Base Sepolia
+      expect(chainIds.length).toBeGreaterThan(0);
+    });
   });
 
-  it('should add new chain config', () => {
-    const newConfig: ChainConfig = {
-      contracts: {
-        atlas:  '0x9000000000000000000000000000000000000000',
-        atlasVerification: '0xa000000000000000000000000000000000000000',
-        sorter: '0xb000000000000000000000000000000000000000',
-        simulator: '0xc000000000000000000000000000000000000000',
-        multicall3: '0xd000000000000000000000000000000000000000',
-      },
-      eip712Domain: {
-        name: 'New Chain',
-        version: '1',
-        chainId: 2,
-        verifyingContract: '0xe000000000000000000000000000000000000000',
-      },
-    };
+  describe('getVersionsForChain', () => {
+    it('should return all versions for a chain', () => {
+      const versions = getVersionsForChain(84532);
+      expect(versions).toContain('1.1');
+      expect(versions).toContain('1.2');
+      expect(versions.length).toBe(2);
+    });
 
-    const result = mergeChainConfigs({ '2': newConfig });
-
-    expect(result['2']).toEqual(newConfig);
+    it('should return empty array for invalid chain', () => {
+      const versions = getVersionsForChain(999999);
+      expect(versions).toEqual([]);
+    });
   });
 
-  it('should throw error when adding incomplete new chain config', () => {
-    expect(() => {
-      mergeChainConfigs({
-        '3': {
-          contracts: {
-            atlas: '0xf000000000000000000000000000000000000000',
+  describe('getAllChainConfigs', () => {
+    it('should return all chain configs with versions', () => {
+      const configs = getAllChainConfigs();
+      
+      // Find Base Sepolia v1.2 config
+      const baseSepoliaV12 = configs.find(c => 
+        c.chainId === 84532 && c.version === '1.2'
+      );
+      
+      expect(baseSepoliaV12).toBeDefined();
+      expect(baseSepoliaV12?.config.contracts.atlas)
+        .toBe('0xda92A5d54149c30a1cA54155a9fF55F32c2E0570');
+    });
+  });
+
+  describe('mergeChainConfigs', () => {
+    it('should merge partial configs correctly', () => {
+      const partialConfig: { [chainId: string]: PartialChainConfig } = {
+        '84532': {
+          '1.2': {
+            contracts: {
+              atlas: '0xNewAddress'
+            }
+          } as PartialVersionConfig
+        }
+      };
+
+      const merged = mergeChainConfigs(partialConfig);
+      expect(merged['84532']['1.2'].contracts.atlas).toBe('0xNewAddress');
+      // Other contracts should remain unchanged
+      expect(merged['84532']['1.2'].contracts.simulator)
+        .toBe('0xabdBe9C2b1Dd55e5A661410E2f81a6B8C1f12D0C');
+    });
+
+    it('should throw error when adding new chain without full config', () => {
+      const invalidConfig: { [chainId: string]: PartialChainConfig } = {
+        '999999': {
+          '1.0': {
+            contracts: {
+              atlas: '0xNewAddress'
+            }
+          } as PartialVersionConfig
+        }
+      };
+
+      expect(() => mergeChainConfigs(invalidConfig))
+        .toThrow('Full version configuration must be provided');
+    });
+
+    it('should add new version when full config provided', () => {
+      const newVersionConfig: { [chainId: string]: PartialChainConfig } = {
+        '84532': {
+          '2.0': {
+            contracts: {
+              atlas: '0xNewAtlas',
+              atlasVerification: '0xNewVerification',
+              sorter: '0xNewSorter',
+              simulator: '0xNewSimulator',
+              multicall3: '0xNewMulticall'
+            },
+            eip712Domain: {
+              name: 'AtlasVerification',
+              version: '1.0',
+              chainId: 84532,
+              verifyingContract: '0xNewVerification'
+            }
+          }
+        }
+      };
+
+      const merged = mergeChainConfigs(newVersionConfig);
+      expect(merged['84532']['2.0']).toBeDefined();
+      expect(merged['84532']['2.0'].contracts.atlas).toBe('0xNewAtlas');
+    });
+
+    it('should handle multiple versions for the same chain', () => {
+      const multiVersionConfig: { [chainId: string]: PartialChainConfig } = {
+        '84532': {
+          '1.1': {
+            contracts: {
+              atlas: '0xVersion1',
+              atlasVerification: '0xVerification1',
+              sorter: '0xSorter1',
+              simulator: '0xSimulator1',
+              multicall3: '0xMulticall3'
+            },
+            eip712Domain: {
+              name: 'AtlasVerification',
+              version: '1.0',
+              chainId: 84532,
+              verifyingContract: '0xVerification1'
+            }
           },
-        } as ChainConfig,
-      });
-    }).toThrow('Full chain configuration must be provided for new chainId: 3');
-  });
-
-  it('should merge multiple chains at once', () => {
-    const existingChainId = Object.keys(chainConfig)[0];
-    const newChainId = '999999';
-    const providedConfigs = {
-      [existingChainId]: {
-        contracts: {
-          atlas: '0x7000000000000000000000000000000000000000'
+          '1.2': {
+            contracts: {
+              atlas: '0xVersion2',
+              atlasVerification: '0xVerification2',
+              sorter: '0xSorter2',
+              simulator: '0xSimulator2',
+              multicall3: '0xMulticall3'
+            },
+            eip712Domain: {
+              name: 'AtlasVerification',
+              version: '1.0',
+              chainId: 84532,
+              verifyingContract: '0xVerification2'
+            }
+          }
         }
-      },
-      [newChainId]: {
-        contracts: {
-          atlas: '0x8000000000000000000000000000000000000000',
-          atlasVerification: '0x9000000000000000000000000000000000000000',
-          sorter: '0xa000000000000000000000000000000000000000',
-          simulator: '0xb000000000000000000000000000000000000000',
-          multicall3: '0xc000000000000000000000000000000000000000'
-        },
-        eip712Domain: {
-          name: 'New Chain',
-          version: '1',
-          chainId: 999999,
-          verifyingContract: '0xd000000000000000000000000000000000000000'
-        }
-      }
-    };
+      };
 
-    const mergedConfigs = mergeChainConfigs(providedConfigs);
-
-    expect(mergedConfigs[existingChainId].contracts.atlas).toBe('0x7000000000000000000000000000000000000000');
-    expect(mergedConfigs[newChainId].contracts.atlas).toBe('0x8000000000000000000000000000000000000000');
-  });
-
-  it('should not change anything when merging an empty config', () => {
-    const originalConfig = { ...chainConfig };
-    const mergedConfigs = mergeChainConfigs({});
-
-    expect(mergedConfigs).toEqual(originalConfig);
-  });
-
-  it('should return the same config when merging a config with no changes', () => {
-    const originalConfig = { ...chainConfig };
-    const mergedConfigs = mergeChainConfigs(originalConfig);
-
-    expect(mergedConfigs).toEqual(originalConfig);
-  });
-
-  it('should merge a partial config that updates multiple fields', () => {
-    const existingChainId = Object.keys(chainConfig)[0];
-    const providedConfig = {
-      [existingChainId]: {
-        contracts: {
-          atlas: '0x7000000000000000000000000000000000000000',
-          sorter: '0x8000000000000000000000000000000000000000'
-        },
-        eip712Domain: {
-          name: 'Updated Chain',
-          version: '2.0'
-        }
-      }
-    };
-
-    const mergedConfigs = mergeChainConfigs(providedConfig);
-
-    expect(mergedConfigs[existingChainId].contracts.atlas).toBe('0x7000000000000000000000000000000000000000');
-    expect(mergedConfigs[existingChainId].contracts.sorter).toBe('0x8000000000000000000000000000000000000000');
-    expect(mergedConfigs[existingChainId].eip712Domain.name).toBe('Updated Chain');
-    expect(mergedConfigs[existingChainId].eip712Domain.version).toBe('2.0');
-  });
-
-  it('should not modify the original chainConfig when merging', () => {
-    const originalConfig = JSON.parse(JSON.stringify(chainConfig));
-    const existingChainId = Object.keys(chainConfig)[0];
-    const providedConfig = {
-      [existingChainId]: {
-        contracts: {
-          atlas: '0x7000000000000000000000000000000000000000'
-        }
-      }
-    };
-
-    mergeChainConfigs(providedConfig);
-
-    expect(chainConfig).toEqual(originalConfig);
+      const merged = mergeChainConfigs(multiVersionConfig);
+      expect(merged['84532']['1.1'].contracts.atlas).toBe('0xVersion1');
+      expect(merged['84532']['1.2'].contracts.atlas).toBe('0xVersion2');
+    });
   });
 });
