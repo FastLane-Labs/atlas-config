@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && cp ../configs/chain-configs-multi-version.json dist/",
+    "clean": "rimraf dist",
+    "build": "pnpm clean && tsc && cp ../configs/chain-configs-multi-version.json dist/",
     "test": "jest",
     "test:watch": "jest --watch",
     "prepublishOnly": "npm run build"
@@ -29,13 +30,12 @@
   },
   "homepage": "https://github.com/fastlane-labs/atlas-config#readme",
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.13",
     "@types/node": "^22.7.5",
-    "@jest/globals": "^29.7.0",
     "jest": "^29.5.0",
+    "rimraf": "^5.0.10",
     "ts-jest": "^29.2.5",
     "typescript": "^5.0.4"
-  },
-  "dependencies": {   
   }
 }
