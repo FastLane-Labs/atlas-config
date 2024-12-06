@@ -1,20 +1,35 @@
+export type ContractConfig = {
+  atlas: string;
+  atlasVerification: string;
+  sorter: string;
+  simulator: string;
+  multicall3: string;
+};
+
+export type EIP712Domain = {
+  name: string;
+  version: string;
+  chainId: number;
+  verifyingContract: string;
+};
+
+export type VersionConfig = {
+  contracts: ContractConfig;
+  eip712Domain: EIP712Domain;
+};
+
 export type ChainConfig = {
-  contracts: {
-    atlas: string;
-    atlasVerification: string;
-    sorter: string;
-    simulator: string;
-    multicall3: string;
-  };
-  eip712Domain: {
-    name: string;
-    version: string;
-    chainId: number;
-    verifyingContract: string;
-  };
+  [version: string]: VersionConfig;
+};
+
+export type PartialContractConfig = Partial<ContractConfig>;
+export type PartialEIP712Domain = Partial<EIP712Domain>;
+
+export type PartialVersionConfig = {
+  contracts?: PartialContractConfig;
+  eip712Domain?: PartialEIP712Domain;
 };
 
 export type PartialChainConfig = {
-  contracts?: Partial<ChainConfig['contracts']>;
-  eip712Domain?: Partial<ChainConfig['eip712Domain']>;
+  [version: string]: PartialVersionConfig;
 };

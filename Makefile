@@ -13,7 +13,7 @@ build: build-ts build-go
 # Build TypeScript project
 build-ts:
 	@echo "Building TypeScript project..."
-	cd $(TS_DIR) && npm install && npm run build
+	cd $(TS_DIR) && pnpm install && pnpm run build
 
 # Build Go project
 build-go:
