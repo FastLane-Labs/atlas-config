@@ -22,7 +22,14 @@ export type ChainConfig = {
   [version: string]: VersionConfig;
 };
 
-export type PartialContractConfig = Partial<ContractConfig>;
+export type ContractAddressConfig = {
+  address: string;
+};
+
+export type PartialContractConfig = {
+  [K in keyof ContractConfig]?: ContractAddressConfig;
+};
+
 export type PartialEIP712Domain = Partial<EIP712Domain>;
 
 export type PartialVersionConfig = {

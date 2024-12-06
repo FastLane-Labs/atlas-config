@@ -74,9 +74,9 @@ describe('Chain Config Tests', () => {
         '84532': {
           '1.2': {
             contracts: {
-              atlas: '0xNewAddress'
+              atlas: { address: '0xNewAddress' }
             }
-          } as PartialVersionConfig
+          }
         }
       };
 
@@ -92,9 +92,9 @@ describe('Chain Config Tests', () => {
         '999999': {
           '1.0': {
             contracts: {
-              atlas: '0xNewAddress'
+              atlas: { address: '0xNewAddress' }
             }
-          } as PartialVersionConfig
+          }
         }
       };
 
@@ -107,11 +107,11 @@ describe('Chain Config Tests', () => {
         '84532': {
           '2.0': {
             contracts: {
-              atlas: '0xNewAtlas',
-              atlasVerification: '0xNewVerification',
-              sorter: '0xNewSorter',
-              simulator: '0xNewSimulator',
-              multicall3: '0xNewMulticall'
+              atlas: { address: '0xNewAtlas' },
+              atlasVerification: { address: '0xNewVerification' },
+              sorter: { address: '0xNewSorter' },
+              simulator: { address: '0xNewSimulator' },
+              multicall3: { address: '0xNewMulticall' }
             },
             eip712Domain: {
               name: 'AtlasVerification',
@@ -133,11 +133,11 @@ describe('Chain Config Tests', () => {
         '84532': {
           '1.1': {
             contracts: {
-              atlas: '0xVersion1',
-              atlasVerification: '0xVerification1',
-              sorter: '0xSorter1',
-              simulator: '0xSimulator1',
-              multicall3: '0xMulticall3'
+              atlas: { address: '0xVersion1' },
+              atlasVerification: { address: '0xVerification1' },
+              sorter: { address: '0xSorter1' },
+              simulator: { address: '0xSimulator1' },
+              multicall3: { address: '0xMulticall3' }
             },
             eip712Domain: {
               name: 'AtlasVerification',
@@ -148,11 +148,11 @@ describe('Chain Config Tests', () => {
           },
           '1.2': {
             contracts: {
-              atlas: '0xVersion2',
-              atlasVerification: '0xVerification2',
-              sorter: '0xSorter2',
-              simulator: '0xSimulator2',
-              multicall3: '0xMulticall3'
+              atlas: { address: '0xVersion2' },
+              atlasVerification: { address: '0xVerification2' },
+              sorter: { address: '0xSorter2' },
+              simulator: { address: '0xSimulator2' },
+              multicall3: { address: '0xMulticall3' }
             },
             eip712Domain: {
               name: 'AtlasVerification',
