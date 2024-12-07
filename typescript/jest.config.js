@@ -1,20 +1,13 @@
 const path = require('path');
 
-const configPath = path.resolve(__dirname, '../configs/chain-config.json');
-
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/test'],
+  testMatch: ['**/*.test.ts'],
+  moduleFileExtensions: ['ts', 'js', 'json'],
   moduleNameMapper: {
-    '^chain-config.json$': configPath,
-    '^./chain-config.json$': configPath,
+    'chain-configs-multi-version.json': path.resolve(__dirname, '../configs/chain-configs-multi-version.json'),
+    './chain-configs-multi-version.json': path.resolve(__dirname, '../configs/chain-configs-multi-version.json')
   },
-  moduleDirectories: ['node_modules', 'src', path.resolve(__dirname, '../../configs')],
-  modulePaths: ['.', path.resolve(__dirname, '../../configs')],
-  transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: 'tsconfig.json',
-    }],
-  },
+  moduleDirectories: ['node_modules', 'src', path.resolve(__dirname, '../configs')]
 };
