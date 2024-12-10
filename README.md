@@ -63,11 +63,15 @@ The configuration data is stored in a JSON file and includes details like contra
 
 ## Supported Chains
 
+### Mainnets
 - **Polygon Mainnet** (Chain ID: `137`)
+- **Arbitrum Mainnet** (Chain ID: `42161`)
+- **Base Mainnet** (Chain ID: `8453`)
 
-- **Ethereum Sepolia** (Chain ID: `11155111`)
+### Testnets
+- **Base Sepolia** (Chain ID: `84532`)
 - **Polygon Amoy** (Chain ID: `80002`)
-
+- **Ethereum Sepolia** (Chain ID: `11155111`)
 
 ## Development
 To contribute or make changes to the configurations:
