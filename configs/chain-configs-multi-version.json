@@ -136,6 +136,22 @@
         "chainId": 8453,
         "verifyingContract": "0x16839b7Bb46136B204Bcb7eA71c9226952c02b34"
       }
+    },
+
+    "1.3": {
+      "contracts": {
+        "atlas": "0xb25BdDC2180cF83B3ECb1eDE074a177c9C7Acc5f",
+        "atlasVerification": "0x4c085DE876A991b7C9aF8bCc283625f85D944444",
+        "sorter": "0x3A5b82d6c9Ef6f8bdeFFBB853af4a2F59B11D194",
+        "simulator": "0xd3e0e90251B98c214C1808c5a697867E3227a4Cf",
+        "multicall3": "0xcA11bde05977b3631167028862bE2a173976CA11"
+      },
+      "eip712Domain": {
+        "name": "AtlasVerification",
+        "version": "1.0",
+        "chainId": 8453,
+        "verifyingContract": "0x4c085DE876A991b7C9aF8bCc283625f85D944444"
+      }
     }
   },
 
