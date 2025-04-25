@@ -268,7 +268,7 @@
       },
       "eip712Domain": {
         "name": "AtlasVerification",
-        "version": "1.0",
+        "version": "1.5",
         "chainId": 10143,
         "verifyingContract": "0x318b5e9806389728b881aea090b7d2330cD7aAd2"
       }
