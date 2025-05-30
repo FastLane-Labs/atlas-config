@@ -80,6 +80,22 @@
         "chainId": 137,
         "verifyingContract": "0x2649776ac7E0938256Ed82ef0874b9150eD62baf"
       }
+    },
+
+    "1.6.1": {
+      "contracts": {
+        "atlas": "0x6A83cadAB4D8869C1763aFa3A777F76a20A1B0E3",
+        "atlasVerification": "0xAe558C01a90932307BE3d0c063C647e78590e87F",
+        "sorter": "0xfd83C6A6704930575679959063c7a2311020802B",
+        "simulator": "0x31BfD7AfCC1c8495EF98EcE41780Dc79e1a2379C",
+        "multicall3": "0xcA11bde05977b3631167028862bE2a173976CA11"
+      },
+      "eip712Domain": {
+        "name": "AtlasVerification",
+        "version": "1.6",
+        "chainId": 137,
+        "verifyingContract": "0xAe558C01a90932307BE3d0c063C647e78590e87F"
+      }
     }
   },
 
@@ -129,6 +145,22 @@
         "version": "1.6",
         "chainId": 80002,
         "verifyingContract": "0xFCB3bD8DE6550eB21DD2d920d362265472D013f5"
+      }
+    },
+
+    "1.6.1": {
+      "contracts": {
+        "atlas": "0x20A241bad5f001a1CCcD4811bC3d4ED7b63375bb",
+        "atlasVerification": "0x6e0699278a49C75F85d3DB07441807444EDB1C00",
+        "sorter": "0xB9f4a351E2efF4B39AEA575DD1cc24479957e848",
+        "simulator": "0x42BAA2Dc8DCC04973b258c4b591b595dD0554aDC",
+        "multicall3": "0xcA11bde05977b3631167028862bE2a173976CA11"
+      },
+      "eip712Domain": {
+        "name": "AtlasVerification",
+        "version": "1.6",
+        "chainId": 80002,
+        "verifyingContract": "0x6e0699278a49C75F85d3DB07441807444EDB1C00"
       }
     }
   },
@@ -424,6 +456,22 @@
         "chainId": 1301,
         "verifyingContract": "0x7472A9490147a07A34820992a12f0a1BC28D5fCa"
       }
+    },
+
+    "1.6.1": {
+      "contracts": {
+        "atlas": "0x035acAD6b26dac54532c57AD69BE9239265d8A5a",
+        "atlasVerification": "0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5",
+        "sorter": "0xd0d4639185e7D72ff8307cCdFD685596be4162A8",
+        "simulator": "0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220",
+        "multicall3": "0xcA11bde05977b3631167028862bE2a173976CA11"
+      },
+      "eip712Domain": {
+        "name": "AtlasVerification",
+        "version": "1.6",
+        "chainId": 1301,
+        "verifyingContract": "0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5"
+      }
     }
   },
 
@@ -457,6 +505,22 @@
         "version": "1.6",
         "chainId": 130,
         "verifyingContract": "0x3dA1C6b93a1aD92ee36b752914b9DDcD234FA6fe"
+      }
+    },
+
+    "1.6.1": {
+      "contracts": {
+        "atlas": "0x43b4AAE0F98fC9ebD86A1E9496cDb9D7208EE55B",
+        "atlasVerification": "0x7a28f2c7310454C3440C7b36d59B21aA354b446f",
+        "sorter": "0x7472A9490147a07A34820992a12f0a1BC28D5fCa",
+        "simulator": "0x0B2d42B3b7d14219f0EacD5F4087f21D7Fa19bd7",
+        "multicall3": "0xcA11bde05977b3631167028862bE2a173976CA11"
+      },
+      "eip712Domain": {
+        "name": "AtlasVerification",
+        "version": "1.6",
+        "chainId": 130,
+        "verifyingContract": "0x7a28f2c7310454C3440C7b36d59B21aA354b446f"
       }
     }
   }
