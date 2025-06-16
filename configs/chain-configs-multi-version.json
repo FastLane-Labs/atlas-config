@@ -332,6 +332,22 @@
         "chainId": 42161,
         "verifyingContract": "0xB05C9205D61fd37D9f50bF658Dcf2919d6CEb6ED"
       }
+    },
+
+    "1.7": {
+      "contracts": {
+        "atlas": "0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220",
+        "atlasVerification": "0xfBc81A39459E0D82EC31B4e585f7A318AFAdB49B",
+        "sorter": "0x50ba76E6c4E8C40D7475449c1A14D5703a953b12",
+        "simulator": "0xd0d4639185e7D72ff8307cCdFD685596be4162A8",
+        "multicall3": "0xcA11bde05977b3631167028862bE2a173976CA11"
+      },
+      "eip712Domain": {
+        "name": "AtlasVerification",
+        "version": "1.7",
+        "chainId": 42161,
+        "verifyingContract": "0xfBc81A39459E0D82EC31B4e585f7A318AFAdB49B"
+      }
     }
   },
 
