@@ -366,6 +366,22 @@
       }
     },
 
+    "1.6.2": {
+      "contracts": {
+        "atlas": "0x85573e387999576E8EA0D22c687c68D654898296",
+        "atlasVerification": "0xea9a96DEFEa6238406920fA32e3E9DA0E67914a0",
+        "sorter": "0x47f3837FdCA42B5707e253CD51a4f83D880c129e",
+        "simulator": "0xf7C8328D43941Fd7a767Ef485fC3cc82935c6540",
+        "multicall3": "0xcA11bde05977b3631167028862bE2a173976CA11"
+      },
+      "eip712Domain": {
+        "name": "AtlasVerification",
+        "version": "1.6.2",
+        "chainId": 42161,
+        "verifyingContract": "0xea9a96DEFEa6238406920fA32e3E9DA0E67914a0"
+      }
+    },
+
     "1.7": {
       "contracts": {
         "atlas": "0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220",
@@ -413,6 +429,22 @@
         "version": "1.6.1",
         "chainId": 421614,
         "verifyingContract": "0xb276C86aA1F718DCB4B45fe77D126ef4123f82b2"
+      }
+    },
+
+    "1.6.2": {
+      "contracts": {
+        "atlas": "0xBEC19eA859B54130a8C153F30ae401D8571cAF0f",
+        "atlasVerification": "0x3A5b82d6c9Ef6f8bdeFFBB853af4a2F59B11D194",
+        "sorter": "0x43b4AAE0F98fC9ebD86A1E9496cDb9D7208EE55B",
+        "simulator": "0xC31f9514703AB9E339069BBB4324d0f41A90fa61",
+        "multicall3": "0xcA11bde05977b3631167028862bE2a173976CA11"
+      },
+      "eip712Domain": {
+        "name": "AtlasVerification",
+        "version": "1.6.2",
+        "chainId": 421614,
+        "verifyingContract": "0x3A5b82d6c9Ef6f8bdeFFBB853af4a2F59B11D194"
       }
     }
   },
