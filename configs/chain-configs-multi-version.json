@@ -482,7 +482,7 @@
   },
 
   "10143": {
-    "1.3": {
+    "1.3-monad": {
       "contracts": {
         "atlas": "0x81E8c782Abbe606366C246C6c85475009ff6fb84",
         "atlasVerification": "0xb47387995e866908B25b49e8BaC7e499170461A6",
@@ -498,7 +498,7 @@
       }
     },
 
-    "1.5": {
+    "1.5-monad": {
       "contracts": {
         "atlas": "0x9958Ab9f64EF51194C5378a336D2A0b0A620D31c",
         "atlasVerification": "0x318b5e9806389728b881aea090b7d2330cD7aAd2",
@@ -514,7 +514,7 @@
       }
     },
 
-    "1.6.1": {
+    "1.6.1-monad": {
       "contracts": {
         "atlas": "0x4a730A56344873FB28f7C3d65A67Fea56f5e0F46",
         "atlasVerification": "0x834B181d1F4Cd9Ec61E02D0DF0E5e4F944eFA508",
@@ -530,7 +530,23 @@
       }
     },
 
-    "1.6.3": {
+    "1.6.2": {
+      "contracts": {
+        "atlas": "0x33DC9c4626b90f8a9535087Edf230Eae551bCaC4",
+        "atlasVerification": "0xD45F6376464999745B38B38F2029f1dA6a22245e",
+        "sorter": "0x3AEc73Ef47A88A30415AD7251a490433e6EB26C2",
+        "simulator": "0x759a02135D2932091Dd9eb55C9E0AcF10B25B5e4",
+        "multicall3": "0xcA11bde05977b3631167028862bE2a173976CA11"
+      },
+      "eip712Domain": {
+        "name": "AtlasVerification",
+        "version": "1.6.2",
+        "chainId": 10143,
+        "verifyingContract": "0xD45F6376464999745B38B38F2029f1dA6a22245e"
+      }
+    },
+
+    "1.6.3-monad": {
       "contracts": {
         "atlas": "0xbB010Cb7e71D44d7323aE1C267B333A48D05907C",
         "atlasVerification": "0x1D388b1B87E3fbd08cF30e54b4Bcaf21052d90a9",
