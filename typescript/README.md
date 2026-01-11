@@ -1,152 +1,206 @@
-# @fastlane-labs/atlas-config
+# Atlas Config - TypeScript
 
-A configuration package for Atlas Protocol, providing essential chain configuration data for EVM networks. This package is designed to be used in conjunction with the [atlas-sdk](https://www.npmjs.com/package/@fastlane-labs/atlas-sdk) and contains all relevant smart contract addresses for the Atlas protocol.
+TypeScript package that provides chain configurations for Atlas Protocol smart contracts. This package is part of the Atlas Protocol suite and is designed to work seamlessly with the Atlas SDK.
 
 ## Installation
 
-Install the package using npm:
-
 ```bash
 npm install @fastlane-labs/atlas-config
-```
-
-```bash
+# or
+pnpm add @fastlane-labs/atlas-config
+# or
 yarn add @fastlane-labs/atlas-config
 ```
 
 ## Usage
 
-Import and use the configuration data in your TypeScript or JavaScript project
+### Basic Usage
 
 ```typescript
-import { chainConfig, getChainConfig, getAllChainConfigs, getSupportedChainIds, mergeChainConfigs } from '@fastlane-labs/atlas-config';
+import { getChainConfig } from '@fastlane-labs/atlas-config';
+
+// Get config for a specific chain
+const sepoliaConfig = getChainConfig(11155111); // Sepolia testnet
+console.log(sepoliaConfig.contracts.atlas); // Atlas contract address
+console.log(sepoliaConfig.eip712Domain); // EIP-712 domain config
 ```
 
-### Access the entire chain configuration
+### Getting Supported Chain IDs
 
 ```typescript
-console.log(chainConfig);
+import { getSupportedChainIds } from '@fastlane-labs/atlas-config';
+
+const chainIds = getSupportedChainIds();
+console.log("Supported chain IDs:", chainIds); // [137, 11155111, ...]
 ```
 
-### Get configuration for a specific chain (e.g., Polygon mainnet)
+### Getting All Chain Configs
 
 ```typescript
-const polygonConfig = getChainConfig(137);
-console.log(polygonConfig);
-```
+import { getAllChainConfigs } from '@fastlane-labs/atlas-config';
 
-### Attempting to get configuration for an unknown chain will throw an error
-
-```typescript
-try {
-  const unknownConfig = getChainConfig(999999);
-} catch (error) {
-  console.error(error); // "Chain configuration not found for chainId: 999999"
-}
-```
-
-### Get all chain configurations
-
-```typescript
 const allConfigs = getAllChainConfigs();
-console.log(allConfigs);
+console.log("All chain configs:", allConfigs.map(config => ({
+  chainId: config.chainId,
+  name: config.config.eip712Domain.name
+})));
 ```
 
-### Get supported chain IDs
+### Merging Custom Configurations
+
+You can merge your own configurations with the default ones. This is useful for testing or using custom contract deployments.
 
 ```typescript
-const supportedChainIds = getSupportedChainIds();
-console.log(supportedChainIds);
-```
+import { mergeChainConfigs } from '@fastlane-labs/atlas-config';
 
-### Merge provided chain configurations with existing ones
-
-```typescript
-const additionalConfig = {
-  137: {
-    contracts: {
-      atlas: { address: '0x1234567890123456789012345678901234567890' }
-    }
-  },
-  999999: {
-    contracts: {
-      atlas: { address: '0x0987654321098765432109876543210987654321' },
-      atlasVerification: { address: '0x0987654321098765432109876543210987654321' },
-      sorter: { address: '0x0987654321098765432109876543210987654321' },
-      simulator: { address: '0x0987654321098765432109876543210987654321' },
-      multicall3: { address: '0x0987654321098765432109876543210987654321' }
-    },
-    eip712Domain: {
-      name: 'New Chain',
-      version: '1',
-      chainId: 999999,
-      verifyingContract: '0x1111111111111111111111111111111111111111'
+// Example: Updating a single contract address
+const partialUpdate = {
+  '11155111': { // Sepolia
+    '1.0': {
+      contracts: {
+        atlas: { address: '0x1234567890123456789012345678901234567890' }
+      }
     }
   }
 };
 
-const mergedConfigs = mergeChainConfigs(additionalConfig);
-console.log(mergedConfigs);
+// Example: Adding a new chain with complete configuration
+const newChainConfig = {
+  '999999': {
+    '1.0': {
+      contracts: {
+        atlas: { address: '0x0987654321098765432109876543210987654321' },
+        atlasVerification: { address: '0x0987654321098765432109876543210987654321' },
+        sorter: { address: '0x0987654321098765432109876543210987654321' },
+        simulator: { address: '0x0987654321098765432109876543210987654321' },
+        multicall3: { address: '0x0987654321098765432109876543210987654321' }
+      },
+      eip712Domain: {
+        name: 'New Test Chain',
+        version: '1.0',
+        chainId: 999999,
+        verifyingContract: '0x1111111111111111111111111111111111111111'
+      }
+    }
+  }
+};
+
+// Merge configurations
+try {
+  const mergedConfigs = mergeChainConfigs({
+    ...partialUpdate,
+    ...newChainConfig
+  });
+  console.log("Updated Sepolia config:", mergedConfigs['11155111']);
+  console.log("New chain config:", mergedConfigs['999999']);
+} catch (error) {
+  console.error("Error merging configs:", error);
+}
 ```
 
-````
+### Integration with Atlas SDK
 
-## Configuration Structure
-
-The `ChainConfig` interface describes the structure of the configuration for each supported chain:
+The package is designed to work seamlessly with the Atlas SDK:
 
 ```typescript
-interface ChainConfig {
-  contracts: {
-    atlas: object;
-    atlasVerification: object;
-    sorter: object;
-    simulator: object;
-    multicall3: object;
-  };
-  eip712Domain: {
-    name: string;
-    version: string;
-    chainId: number;
-    verifyingContract: string;
-  };
+import { getChainConfig } from '@fastlane-labs/atlas-config';
+import { OperationBuilder } from '@fastlane-labs/atlas-sdk';
+
+// Example: Creating a solver operation
+OperationBuilder.newSolverOperation({
+  from: "0x...",
+  to: "0x...",
+  value: BigInt(0),
+  gas: BigInt(0),
+  maxFeePerGas: BigInt(0),
+  deadline: BigInt(0),
+  solver: "0x...",
+  control: "0x...",
+  userOpHash: "0x...",
+  bidToken: "0x...",
+  bidAmount: BigInt(10000000000000000), // 0.01 ETH
+  data: "0x...",
+  signature: "0x..."
+});
+```
+
+## Configuration Types
+
+### Contract Configuration
+```typescript
+type ContractConfig = {
+  atlas: string;
+  atlasVerification: string;
+  sorter: string;
+  simulator: string;
+  multicall3: string;
+};
+```
+
+### EIP-712 Domain Configuration
+```typescript
+type EIP712Domain = {
+  name: string;
+  version: string;
+  chainId: number;
+  verifyingContract: string;
+};
+```
+
+### Version Configuration
+```typescript
+type VersionConfig = {
+  contracts: ContractConfig;
+  eip712Domain: EIP712Domain;
+};
+```
+
+## Error Handling
+
+The package includes proper error handling for common scenarios:
+
+```typescript
+// Invalid chain ID
+try {
+  const config = getChainConfig(999999);
+} catch (error) {
+  console.error("Chain not supported:", error);
 }
-````
 
-## Supported Chains
+// Invalid version
+try {
+  const config = getChainConfig(11155111, '9.9');
+} catch (error) {
+  console.error("Version not found:", error);
+}
 
-This package includes configurations for various Ethereum networks. Use the `getChainConfig` function with the appropriate chain ID to retrieve the configuration for a specific network.
+// Incomplete configuration when merging
+try {
+  const incompleteConfig = {
+    '888888': {
+      '1.0': {
+        contracts: {
+          atlas: { address: '0x1234567890123456789012345678901234567890' }
+        }
+      }
+    }
+  };
+  mergeChainConfigs(incompleteConfig);
+} catch (error) {
+  console.error("Expected error:", error);
+}
+```
 
-### Mainnets
+## Development
 
-- Polygon (Chain ID: 137)
-- Base (Chain ID: 8453)
-- Arbitrum (Chain ID: 42161)
+To contribute to this package:
 
-### Testnets
-
-- Ethereum Sepolia (Chain ID: 11155111)
-- Polygon Amoy (Chain ID: 80002)
-
-Each chain configuration includes contract addresses and EIP-712 domain information specific to that network. Use the appropriate chain ID when calling `getChainConfig()` to retrieve the configuration for your desired network.
-
-## Integration with atlas-sdk
-
-This configuration package is designed to work seamlessly with the [Atlas Typescript SDK](https://www.npmjs.com/package/@fastlane-labs/atlas-sdk). It provides all the necessary smart contract addresses and network-specific information required for interacting with the Atlas protocol.
-
-## Contributing
-
-If you'd like to contribute to this project, please submit a pull request or open an issue on our GitHub repository.
+1. Clone the repository
+2. Install dependencies: `pnpm install`
+3. Run tests: `pnpm test`
+4. Build: `pnpm build`
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
-
-## Support
-
-For questions, issues, or feature requests, please open an issue on our GitHub repository or contact our support team at [support@fastlanelabs.com](mailto\:support@fastlanelabs.com).
-
-## Disclaimer
-
-This package is part of the Atlas protocol ecosystem. Make sure to use it in conjunction with other Atlas-related packages and follow best practices for blockchain development and security.
+MIT License - see the [LICENSE](../LICENSE) file for details.
 
